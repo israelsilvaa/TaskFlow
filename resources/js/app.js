@@ -17,9 +17,17 @@ const app = createApp({});
 
 import ExampleComponent from './components/ExampleComponent.vue';
 import LoginComponent from './components/Login.vue';
+import HomeComponent from './components/Home.vue';
+import TasksComponent from './components/Tasks.vue';
+import CardComponent from './components/Card.vue';
+import InputComponent from './components/InputContainer.vue';
 
 app.component('example-component', ExampleComponent);
 app.component('login-component', LoginComponent);
+app.component('home-component', HomeComponent);
+app.component('tasks-component', TasksComponent);
+app.component('card-component', CardComponent);
+app.component('input-container-component', InputComponent);
 
 /**
  * The following block of code may be used to automatically register your
