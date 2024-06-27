@@ -30,22 +30,25 @@
                     </template>
 
                 </card-component>
-
-
                 <!-- Fim do card de busca -->
 
-                <!-- Inicio do card de tasks -->
+                <!-- Inicio do card de listagem de tasks -->
                 <card-component titulo="Relação de Tasks">
                     <template v-slot:conteudo>
                         <table-component :dados="tasks.data"
-                            :titulos="['id', 'title', 'description', 'status','created_at']"></table-component>
+                            :titulos="['id', 'title', 'description', 'status', 'created_at']"></table-component>
                     </template>
                     <template v-slot:rodape>
-                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                        <paginate-component>
+                            <li v-for="link, key in tasks.links" :key="key" class="page-item" @click="paginacao(link)">
+                                <a :class="link.active ? 'page-link active':'page-link'" v-html="link.label"></a>
+                            </li>
+                        </paginate-component>
+                        <button type="button" class="btn btn-primary btn-sm m-3" data-bs-toggle="modal"
                             data-bs-target="#modalTask">Adicionar</button>
                     </template>
                 </card-component>
-                <!-- Fim do card de tasks -->
+                <!-- Fim do card de listagem de tasks -->
             </div>
         </div>
 
@@ -113,6 +116,12 @@ export default {
         }
     },
     methods: {
+        paginacao(link){
+            if(link.url){
+                this.urlBase = link.url // ajustar parametro de consulta com parametro da pagina
+                this.carregarListaTasks() // requisita dados para API, da pagina desejada 
+            }
+        },
         carregarListaTasks() {
             let config = {
                 headers: {
