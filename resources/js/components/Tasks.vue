@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <!-- Inicio do card de busca -->
                 <card-component titulo="Busca de Tasks">
 
@@ -46,9 +46,11 @@
                 <!-- Inicio do card de listagem de tasks -->
                 <card-component titulo="Relação de Tasks">
                     <template v-slot:conteudo>
-                        <table-component :dados="tasks.data" :concluir="true"
+                        <table-component :dados="tasks.data" 
+                            :concluir="true"
                             :visualizar="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#modalTaskVisualizar' }"
-                            :atualizar="true" :remover="true"
+                            :atualizar="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#modalTaskAtualizar' }"
+                            :remover="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#modalTaskRemover' }"
                             :titulos="['id', 'title', 'description', 'status', 'created_at']"></table-component>
                     </template>
                     <template v-slot:rodape>
@@ -94,10 +96,8 @@
             </template>
 
             <template v-slot:rodape>
-                <button-component>
-                    <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
-                    <button type="button" class="btn btn-primary" @click="salvar()">Salvar</button>
-                </button-component>
+                <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" @click="salvar()">Salvar</button>
             </template>
         </modal-component>
         <!-- Fim Modal de criação de tasks -->
@@ -127,7 +127,7 @@
                 </input-container-component>
 
                 <input-container-component titulo="Responsável">
-                    <input type="text" class="form-control" :value="$store.state.item.user.name" disabled>
+                    <input type="text" class="form-control" :value="$store.state.responsavel.name" disabled>
                 </input-container-component>
 
                 <input-container-component titulo="Usuarios relacionados">
@@ -140,13 +140,83 @@
             </template>
 
             <template v-slot:rodape>
-                <button-component>
-                    <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
-                </button-component>
+                <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
             </template>
         </modal-component>
-
         <!-- Fim Modal de visualização de tasks -->
+
+        <!-- Inicio Modal de remoção de tasks -->
+        <modal-component id="modalTaskRemover" titulo="Remover task">
+            <template v-slot:alertas>
+                <alert-component tipo="success" titulo="Transação realizada com sucesso"
+                    :detalhes="$store.state.transacao"
+                    v-if="$store.state.transacao.status == 'sucesso'"></alert-component>
+                <alert-component tipo="danger" titulo="Erro na transação" :detalhes="$store.state.transacao"
+                    v-if="$store.state.transacao.status == 'erro'"></alert-component>
+            </template>
+
+            <template v-slot:conteudo v-if="$store.state.transacao.status != 'sucesso'">
+                <input-container-component titulo="ID">
+                    <input type="text" class="form-control" :value="$store.state.item.id" disabled>
+                </input-container-component>
+
+                <input-container-component titulo="Titulo">
+                    <input type="text" class="form-control" :value="$store.state.item.title" disabled>
+                </input-container-component>
+
+                <input-container-component titulo="Descrição">
+                    <textarea name="" id="" cols="30" class="form-control" rows="3"
+                        disabled> {{ $store.state.item.description }} </textarea>
+                </input-container-component>
+
+                <input-container-component titulo="Status">
+                    <input type="text" class="form-control" :value="$store.state.item.status" disabled>
+                </input-container-component>
+            </template>
+
+            <template v-slot:rodape>
+                <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-danger m-1" @click="remover()"
+                    v-if="$store.state.transacao.status != 'sucesso'">Remover</button>
+            </template>
+        </modal-component>
+        <!-- Fim Modal de remoção de tasks -->
+
+        <!-- Inicio Modal de atualização de tasks -->
+        <modal-component id="modalTaskAtualizar" titulo="Atualizar task">
+            <template v-slot:alertas>
+                <alert-component tipo="success" titulo="Transação realizada com sucesso"
+                    :detalhes="$store.state.transacao"
+                    v-if="$store.state.transacao.status == 'sucesso'"></alert-component>
+                <alert-component tipo="danger" titulo="Erro na transação" :detalhes="$store.state.transacao"
+                    v-if="$store.state.transacao.status == 'erro'"></alert-component>
+            </template>
+
+            <template v-slot:conteudo>
+                <div class="form-group">
+                    <input-container-component titulo="Titulo" id="atualizarNovoTitulo" id-help="atualizarNovoTituloHelp"
+                        texto-ajuda="Informe o Titulo da task">
+                        <input type="text" class="form-control" id="novoTitle" placeholder="Backup dataBase"
+                            v-model="$store.state.item.title" aria-describedby="atualizarNovoTituloHelp">
+                    </input-container-component>
+                </div>
+
+                <div class="form-group">
+                    <input-container-component titulo="Descrição" id="atualizarNovoDescricao"
+                        id-help="atualizarNovoDescricaoHelp" texto-ajuda="Descrição da trask">
+                        <input type="text" class="form-control" id="novoDescription"
+                            placeholder="baixar base da produção e salvar no driver"
+                            v-model="$store.state.item.description" aria-describedby="atualizarNovoDescricaoHelp">
+                    </input-container-component>
+                </div>
+            </template>
+
+            <template v-slot:rodape>
+                <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-warning" @click="atualizar()">Atualizar</button>
+            </template>
+        </modal-component>
+        <!-- Fim Modal de atualização de tasks -->
 
     </div>
 </template>
@@ -170,7 +240,7 @@ export default {
             urlBase: 'http://localhost:8000/api/v1/task',
             urlPaginacao: '',
             urlFiltro: '',
-            tasks: { data: [] }, // definido como vazio, aguardar a requisição de tasks terminar_carregarListaTasks()
+            tasks: { data: [] }, // definido como vazio, aguardar a requisição de tasks terminar: carregarListaTasks()
             titulo: '',
             descricao: '',
             transacaoStatus: '',
@@ -179,6 +249,58 @@ export default {
         }
     },
     methods: {
+        atualizar() {
+
+            let formData = new FormData();
+            formData.append('_method', 'patch')
+            formData.append('title', this.$store.state.item.title)
+            formData.append('description', this.$store.state.item.description)
+
+            console.log(this.$store.state.item)
+            let config = {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': this.token
+                }
+            }
+            let url = this.urlBase + '/' + this.$store.state.item.id
+
+            axios.post(url, formData, config)
+                .then(response => {
+                    this.$store.state.transacao.status = 'sucesso'
+                    this.$store.state.transacao.mensagem = response.data.success.detail
+                    this.carregarListaTasks()
+                })
+                .catch(errors => {
+                    this.$store.state.transacao.status = 'erro'
+                    this.$store.state.transacao.mensagem = errors.response.data.error.detail
+                });
+        },
+        remover() {
+            let confirmacao = confirm('Tem certeza que deseja remover essa task?')
+            if (!confirmacao) return false;
+
+            let formData = new FormData();
+            formData.append('_method', 'delete')
+            let config = {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': this.token
+                }
+            }
+            let url = this.urlBase + '/' + this.$store.state.item.id
+
+            axios.post(url, formData, config)
+                .then(response => {
+                    this.$store.state.transacao.status = 'sucesso'
+                    this.$store.state.transacao.mensagem = response.data.success.detail
+                })
+                .catch(errors => {
+                    this.$store.state.transacao.status = 'erro'
+                    this.$store.state.transacao.mensagem = errors.response.data.error.detail
+                });
+            this.carregarListaTasks()
+        },
         pesquisar() {
             let filtro = ''
             for (let chave in this.busca) {
@@ -196,7 +318,6 @@ export default {
             } else {
                 this.urlFiltro = ''
             }
-            // console.log(this.urlFiltro);
             this.carregarListaTasks() // carrega lista com filtros de pesquisa atualizados
         },
         paginacao(link) {
@@ -218,15 +339,12 @@ export default {
             axios.get(url, config)
                 .then(response => {
                     this.tasks = response.data
-                    // console.log(response.data.data);
                 })
                 .catch(errors => {
-                    // console.log(errors);
                 });
 
         },
         salvar() {
-            // console.log(this.titulo, this.descricao)
             let formData = new FormData();
             formData.append('title', this.titulo)
             formData.append('description', this.descricao)
@@ -244,7 +362,6 @@ export default {
                     this.transacaoDetalhes = {
                         mensagem: 'ID do registro: ' + response.data.success.detail.id
                     }
-                    // console.log(response);
                 })
                 .catch(errors => {
                     this.transacaoStatus = 'erro'
@@ -265,6 +382,7 @@ export default {
                     }
 
                 });
+            this.carregarListaTasks()
         }
     },
     mounted() {

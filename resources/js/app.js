@@ -13,6 +13,7 @@ import { createStore } from 'vuex';
 const store = createStore({
     state: {
         item: {},
+        responsavel: {},
         relacionados: '',
         transacao: { status: '', mensagem: '', dado: '' }
     }

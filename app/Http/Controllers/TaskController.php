@@ -6,8 +6,8 @@ use Exception;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Illuminate\Support\Facades\DB;
-use App\Http\Requests\taskFormRequest;
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 
 class TaskController extends Controller
 {
@@ -58,7 +58,7 @@ class TaskController extends Controller
             }
         }
 
-        $task = $task->paginate(3);
+        $task = $task->paginate(10);
 
         return response()->json($task, 201);
     }
@@ -74,7 +74,7 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(taskFormRequest $request)
+    public function store(StoreTaskRequest $request)
     {
         // dd($request->all());
         try {
@@ -126,16 +126,118 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Task $task)
+    public function update(UpdateTaskRequest $request, $id)
     {
-        //
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+            $task = $this->task->find($id);
+
+            // dd($task, $id);
+
+            // Verifica se a tarefa existe
+            if ($task === null) {
+                return response()->json([
+                    "error" => [
+                        "status" => "404",
+                        "title" => "Not Found",
+                        "detail" => "Registro não encontrado",
+                    ]
+                ], 404);
+            }
+
+            // Verifica se o usuário tem permissão para atualizar a tarefa
+            if ($task->user_id !== $user->id) {
+                return response()->json([
+                    "error" => [
+                        "status" => "403",
+                        "title" => "Forbidden",
+                        "detail" => "Usuário não tem permissão para acessar o registro",
+                    ]
+                ], 403);
+            }
+
+            // Tenta atualizar a tarefa
+            if ($task->update($request->all())) {
+                return response()->json([
+                    "success" => [
+                        "status" => "200",
+                        "title" => "OK",
+                        "detail" => "Atualizado com sucesso"
+                    ]
+                ], 200);
+            }
+
+            return response()->json([
+                "error" => ["status" => "500", "title" => "Internal Server Error", "detail" => "Erro ao atualizar"]
+            ], 500);
+
+        } catch (Exception $e) {
+            return response()->json([
+                "error" => [
+                    "status" => "500",
+                    "title" => "Internal Server Error",
+                    "detail" => $e->getMessage(),
+                ]
+            ], 500);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Task $task)
+    public function destroy($id)
     {
-        //
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+            $task = $this->task->find($id);
+
+            // Verifica se a tarefa existe
+            if ($task === null) {
+                return response()->json([
+                    "error" => [
+                        "status" => "404",
+                        "title" => "Not Found",
+                        "detail" => "Registro não encontrado",
+                    ]
+                ], 404);
+            }
+
+            // Verifica se o usuário tem permissão para deletar a tarefa
+            if ($task->user_id !== $user->id) {
+                return response()->json([
+                    "error" => [
+                        "status" => "403",
+                        "title" => "Forbidden",
+                        "detail" => "Usuário não tem permissão para acessar o registro",
+                    ]
+                ], 403);
+            }
+
+            // Tenta deletar a tarefa
+            if ($task->delete()) {
+                return response()->json([
+                    "success" => [
+                        "status" => "200",
+                        "title" => "OK",
+                        "detail" => "Deletado com sucesso"
+                    ]
+                ], 200);
+            }
+
+            return response()->json([
+                "error" => ["status" => "500", "title" => "Internal Server Error", "detail" => "Erro ao deletar"]
+            ], 500);
+
+        } catch (Exception $e) {
+            return response()->json([
+                "error" => [
+                    "status" => "500",
+                    "title" => "Internal Server Error",
+                    "detail" => $e->getMessage(),
+                ]
+            ], 500);
+        }
     }
+
+
 }
