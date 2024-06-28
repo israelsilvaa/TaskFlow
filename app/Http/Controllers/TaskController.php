@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+// use Carbon\Carbon;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -27,41 +28,85 @@ class TaskController extends Controller
     /**
      * Display a listing of the resource.
      */
+    // public function index(Request $request)
+    // {
+    //     $user = JWTAuth::parseToken()->authenticate();
+    //     $taskQuery = $this->task->where('user_id', $user->id);
+
+    //     // Selecionar colunas de usuarios relacionados
+    //     if ($request->has('assignedUsers')) {
+    //         $atributos_assignedUsers = $request->assignedUsers;
+    //         $taskQuery = $taskQuery->with('assignedUsers:id,' . $atributos_assignedUsers);
+    //     } else {
+    //         $taskQuery = $taskQuery->with('assignedUsers');
+    //     }
+
+    //     // Selecionar colunas do user criador da task
+    //     if ($request->has('atributos')) {
+    //         $atributos = $request->atributos;
+    //         $taskQuery = $taskQuery->selectRaw($atributos)->with('user:id,name,role');
+    //     } else {
+    //         $taskQuery = $taskQuery->with('user:id,name,role');
+    //     }
+
+    //     // Filtra de acordo com as condições passadas por parametro de busca
+    //     if ($request->has('filtro')) {
+    //         $filtros = explode(';', $request->filtro);
+    //         foreach ($filtros as $condicoes) {
+    //             $c = explode(':', $condicoes);
+    //             $taskQuery = $taskQuery->where($c[0], $c[1], $c[2]);
+    //         }
+    //     }
+
+    //     $tasks = $taskQuery->paginate(10);
+
+    //     return response()->json($tasks, 201);
+    // }
     public function index(Request $request)
-    {
-        $user = JWTAuth::parseToken()->authenticate();
-        $task = array();
+{
+    $user = JWTAuth::parseToken()->authenticate();
+    $taskQuery = $this->task->newQuery();
 
-        // selecionar colunas de usuarios relacionados
-        if ($request->has('assignedUsers')) {
-            $atributos_assignedUsers = $request->assignedUsers;
-            $task = $this->task->where('user_id', $user->id)->with('assignedUsers:id,' . $atributos_assignedUsers);
-        } else {
-            $task = $this->task->where('user_id', $user->id)->with('assignedUsers');
-        }
-
-        // selecionar colunas do user criador da task
-        if ($request->has('atributos')) {
-            $atributos = $request->atributos;
-            $task = $task->selectRaw($atributos)->with('user:id,name,role');
-        } else {
-            $task = $task->with('user:id,name,role');
-        }
-
-        // filtra de acordo com as condições passadas por parametro de busca
-        if ($request->has('filtro')) {
-            $filtros = explode(';', $request->filtro);
-            foreach ($filtros as $key => $condicoes) {
-                $c = explode(':', $condicoes);
-
-                $task = $task->where($c[0], $c[1], $c[2]);
-            }
-        }
-
-        $task = $task->paginate(10);
-
-        return response()->json($task, 201);
+    // Verifique o papel do usuário
+    if ($user->role !== 'admin') {
+        // Se não for admin, o usuário pode ver apenas tasks relacionadas
+        $taskQuery = $taskQuery->whereHas('assignedUsers', function ($query) use ($user) {
+            $query->where('users.id', $user->id);
+        });
     }
+
+    // Selecionar colunas de usuários relacionados
+    if ($request->has('assignedUsers')) {
+        $atributos_assignedUsers = $request->assignedUsers;
+        $taskQuery = $taskQuery->with('assignedUsers:id,' . $atributos_assignedUsers);
+    } else {
+        $taskQuery = $taskQuery->with('assignedUsers');
+    }
+
+    // Selecionar colunas do user criador da task
+    if ($request->has('atributos')) {
+        $atributos = $request->atributos;
+        $taskQuery = $taskQuery->selectRaw($atributos)->with('user:id,name,role');
+    } else {
+        $taskQuery = $taskQuery->with('user:id,name,role');
+    }
+
+    // Filtra de acordo com as condições passadas por parametro de busca
+    if ($request->has('filtro')) {
+        $filtros = explode(';', $request->filtro);
+        foreach ($filtros as $condicoes) {
+            $c = explode(':', $condicoes);
+            $taskQuery = $taskQuery->where($c[0], $c[1], $c[2]);
+        }
+    }
+
+    $tasks = $taskQuery->paginate(10);
+
+    return response()->json($tasks, 201);
+}
+
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -170,7 +215,6 @@ class TaskController extends Controller
             return response()->json([
                 "error" => ["status" => "500", "title" => "Internal Server Error", "detail" => "Erro ao atualizar"]
             ], 500);
-
         } catch (Exception $e) {
             return response()->json([
                 "error" => [
@@ -187,6 +231,7 @@ class TaskController extends Controller
      */
     public function destroy($id)
     {
+
         try {
             $user = JWTAuth::parseToken()->authenticate();
             $task = $this->task->find($id);
@@ -227,7 +272,6 @@ class TaskController extends Controller
             return response()->json([
                 "error" => ["status" => "500", "title" => "Internal Server Error", "detail" => "Erro ao deletar"]
             ], 500);
-
         } catch (Exception $e) {
             return response()->json([
                 "error" => [
@@ -238,6 +282,4 @@ class TaskController extends Controller
             ], 500);
         }
     }
-
-
 }

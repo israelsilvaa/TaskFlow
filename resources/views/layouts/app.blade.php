@@ -25,7 +25,7 @@
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
+                    <i class="fa-solid fa-list-check"></i> {{ config('app.name', 'Laravel') }}
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
@@ -57,7 +57,7 @@
                                         Administração
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                                        <li><a href="#" class="dropdown-item">Gerenciar Usuários</a></li>
+                                        <li><a href="#" class="dropdown-item">Criar Task</a></li>
                                         <li><a href="#" class="dropdown-item">Atribuir Tarefas</a></li>
                                     </ul>
                                 </li>
@@ -119,6 +119,7 @@
             @yield('content')
         </main>
     </div>
+    <script src="https://kit.fontawesome.com/bf4bab225b.js" crossorigin="anonymous"></script>
 </body>
 
 </html>

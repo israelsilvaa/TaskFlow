@@ -256,16 +256,9 @@ export default {
             formData.append('title', this.$store.state.item.title)
             formData.append('description', this.$store.state.item.description)
 
-            console.log(this.$store.state.item)
-            let config = {
-                headers: {
-                    'Accept': 'application/json',
-                    'Authorization': this.token
-                }
-            }
             let url = this.urlBase + '/' + this.$store.state.item.id
 
-            axios.post(url, formData, config)
+            axios.post(url, formData)
                 .then(response => {
                     this.$store.state.transacao.status = 'sucesso'
                     this.$store.state.transacao.mensagem = response.data.success.detail
@@ -282,15 +275,10 @@ export default {
 
             let formData = new FormData();
             formData.append('_method', 'delete')
-            let config = {
-                headers: {
-                    'Accept': 'application/json',
-                    'Authorization': this.token
-                }
-            }
+           
             let url = this.urlBase + '/' + this.$store.state.item.id
 
-            axios.post(url, formData, config)
+            axios.post(url, formData)
                 .then(response => {
                     this.$store.state.transacao.status = 'sucesso'
                     this.$store.state.transacao.mensagem = response.data.success.detail
@@ -330,33 +318,20 @@ export default {
         carregarListaTasks() {
             let url = this.urlBase + '?' + this.urlPaginacao + this.urlFiltro;
 
-            let config = {
-                headers: {
-                    'Accept': 'application/json',
-                    'Authorization': this.token
-                }
-            }
-            axios.get(url, config)
+            axios.get(url)
                 .then(response => {
                     this.tasks = response.data
                 })
                 .catch(errors => {
                 });
-
         },
         salvar() {
             let formData = new FormData();
             formData.append('title', this.titulo)
             formData.append('description', this.descricao)
-            let config = {
-                headers: {
-                    'Accept': 'application/json',
-                    'Authorization': this.token
-                }
-            }
-
+         
             // recupera a resposta/erros de forma assincrona
-            axios.post(this.urlBase, formData, config)
+            axios.post(this.urlBase, formData)
                 .then(response => {
                     this.transacaoStatus = 'adicionado'
                     this.transacaoDetalhes = {
