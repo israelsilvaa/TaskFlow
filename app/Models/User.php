@@ -44,7 +44,21 @@ class User extends Authenticatable implements JWTSubject
         'password' => 'hashed',
     ];
 
-     // Rest omitted for brevity
+    /**
+     * Get the tasks for the user.
+     */
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    /**
+     * The tasks that the user is assigned to.
+     */
+    public function assignedTasks()
+    {
+        return $this->belongsToMany(Task::class, 'task_assignments');
+    }
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.

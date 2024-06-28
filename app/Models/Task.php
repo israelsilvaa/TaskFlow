@@ -11,4 +11,19 @@ class Task extends Model
 
     protected $fillable = ['user_id','title', 'description'];
 
+      /**
+     * Get the user that owns the task.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * The users that are assigned to the task.
+     */
+    public function assignedUsers()
+    {
+        return $this->belongsToMany(User::class, 'task_assignments');
+    }
 }

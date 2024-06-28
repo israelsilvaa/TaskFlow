@@ -8,24 +8,35 @@
                     <template v-slot:conteudo>
                         <div class="row">
                             <div class="col mb-3">
-                                <input-container-component titulo="ID" id="inputId" id-help="idHelp"
-                                    texto-ajuda="Opcional. Informe o ID da task">
-                                    <input type="number" class="form-control" id="inputId" placeholder="55"
-                                        aria-describedby="idHelp">
-                                </input-container-component>
-                            </div>
-                            <div class="col mb-3">
                                 <input-container-component titulo="Titulo" id="inputTask" id-help="tituloHelp"
                                     texto-ajuda="Informe o Titulo da task">
                                     <input type="text" class="form-control" id="inputTask" placeholder="Backup dataBase"
-                                        aria-describedby="tituloHelp">
+                                        aria-describedby="tituloHelp" v-model="busca.title">
                                 </input-container-component>
                             </div>
+
+                            <div class="col mb-3">
+                                <input-container-component titulo="Description" id="inputDescription"
+                                    id-help="descriptionHelp" texto-ajuda="Informe a Descrição da task">
+                                    <input type="text" class="form-control" id="inputDescription"
+                                        placeholder="baixar e upar no driver" aria-describedby="descriptionHelp"
+                                        v-model="busca.description">
+                                </input-container-component>
+                            </div>
+
+                            <!-- <div class="col mb-3">
+                                <input-container-component titulo="User" id="inputUser" id-help="userHelp"
+                                    texto-ajuda="Usuário relacionado a task">
+                                    <input type="text" class="form-control" id="inputUser" placeholder="israel"
+                                        aria-describedby="userHelp" v-model="busca.assigned_user_names">
+                                </input-container-component>
+                            </div> -->
+
                         </div>
                     </template>
                     <template v-slot:rodape>
                         <div class="">
-                            <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
+                            <button type="submit" class="btn btn-primary btn-sm" @click="pesquisar()">Pesquisar</button>
                         </div>
                     </template>
 
@@ -35,13 +46,17 @@
                 <!-- Inicio do card de listagem de tasks -->
                 <card-component titulo="Relação de Tasks">
                     <template v-slot:conteudo>
-                        <table-component :dados="tasks.data"
+                        <table-component :dados="tasks.data" 
+                        :concluir="true" 
+                        :visualizar="{visivel:true, dataBsToggle:'modal', dataBsTarget:'#modalTaskVisualizar'}"
+                        :atualizar="true"
+                        :remover="true"
                             :titulos="['id', 'title', 'description', 'status', 'created_at']"></table-component>
                     </template>
                     <template v-slot:rodape>
                         <paginate-component>
                             <li v-for="link, key in tasks.links" :key="key" class="page-item" @click="paginacao(link)">
-                                <a :class="link.active ? 'page-link active':'page-link'" v-html="link.label"></a>
+                                <a :class="link.active ? 'page-link active' : 'page-link'" v-html="link.label"></a>
                             </li>
                         </paginate-component>
                         <button type="button" class="btn btn-primary btn-sm m-3" data-bs-toggle="modal"
@@ -88,6 +103,25 @@
             </template>
         </modal-component>
         <!-- Fim Modal de criação de tasks -->
+
+        <!-- Inicio Modal de visualização de tasks -->
+        <modal-component id="modalTaskVisualizar" titulo="Visualizar task">
+            <template v-slot:alertas>
+            </template>
+
+            <template v-slot:conteudo>
+                teste
+            </template>
+
+            <template v-slot:rodape>
+                <button-component>
+                    <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
+                </button-component>
+            </template>
+        </modal-component>
+
+        <!-- Fim Modal de visualização de tasks -->
+
     </div>
 </template>
 
@@ -108,31 +142,57 @@ export default {
     data() {
         return {
             urlBase: 'http://localhost:8000/api/v1/task',
+            urlPaginacao: '',
+            urlFiltro: '',
             tasks: { data: [] }, // definido como vazio, aguardar a requisição de tasks terminar_carregarListaTasks()
             titulo: '',
             descricao: '',
             transacaoStatus: '',
             transacaoDetalhes: {},
+            busca: { title: '', description: '' }
         }
     },
     methods: {
-        paginacao(link){
-            if(link.url){
-                this.urlBase = link.url // ajustar parametro de consulta com parametro da pagina
+        pesquisar() {
+            let filtro = ''
+            for (let chave in this.busca) {
+                if (this.busca[chave]) {
+                    if (filtro != '') {
+                        filtro += ";"
+                    }
+
+                    filtro += chave + ":like:%" + this.busca[chave] + "%"
+                }
+            }
+            if (filtro != '') {
+                this.urlPaginacao = 'page=1'
+                this.urlFiltro = '&filtro=' + filtro
+            } else {
+                this.urlFiltro = ''
+            }
+            console.log(this.urlFiltro);
+            this.carregarListaTasks() // carrega lista com filtros de pesquisa atualizados
+        },
+        paginacao(link) {
+            if (link.url) {
+                // this.urlBase = link.url // ajustar parametro de consulta com parametro da pagina
+                this.urlPaginacao = link.url.split('?')[1]
                 this.carregarListaTasks() // requisita dados para API, da pagina desejada 
             }
         },
         carregarListaTasks() {
+            let url = this.urlBase + '?' + this.urlPaginacao + this.urlFiltro;
+
             let config = {
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': this.token
                 }
             }
-            axios.get(this.urlBase, config)
+            axios.get(url, config)
                 .then(response => {
                     this.tasks = response.data
-                    console.log(response.data.data);
+                    // console.log(response.data.data);
                 })
                 .catch(errors => {
                     // console.log(errors);
