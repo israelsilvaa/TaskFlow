@@ -46,11 +46,9 @@
                 <!-- Inicio do card de listagem de tasks -->
                 <card-component titulo="Relação de Tasks">
                     <template v-slot:conteudo>
-                        <table-component :dados="tasks.data" 
-                        :concluir="true" 
-                        :visualizar="{visivel:true, dataBsToggle:'modal', dataBsTarget:'#modalTaskVisualizar'}"
-                        :atualizar="true"
-                        :remover="true"
+                        <table-component :dados="tasks.data" :concluir="true"
+                            :visualizar="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#modalTaskVisualizar' }"
+                            :atualizar="true" :remover="true"
                             :titulos="['id', 'title', 'description', 'status', 'created_at']"></table-component>
                     </template>
                     <template v-slot:rodape>
@@ -110,7 +108,35 @@
             </template>
 
             <template v-slot:conteudo>
-                teste
+
+                <input-container-component titulo="ID">
+                    <input type="text" class="form-control" :value="$store.state.item.id" disabled>
+                </input-container-component>
+
+                <input-container-component titulo="Titulo">
+                    <input type="text" class="form-control" :value="$store.state.item.title" disabled>
+                </input-container-component>
+
+                <input-container-component titulo="Descrição">
+                    <textarea name="" id="" cols="30" class="form-control" rows="3"
+                        disabled> {{ $store.state.item.description }} </textarea>
+                </input-container-component>
+
+                <input-container-component titulo="Status">
+                    <input type="text" class="form-control" :value="$store.state.item.status" disabled>
+                </input-container-component>
+
+                <input-container-component titulo="Responsável">
+                    <input type="text" class="form-control" :value="$store.state.item.user.name" disabled>
+                </input-container-component>
+
+                <input-container-component titulo="Usuarios relacionados">
+                    <input type="text" class="form-control" :value="$store.state.relacionados" disabled>
+                </input-container-component>
+
+                <input-container-component titulo="Created_at">
+                    <input type="text" class="form-control" :value="$store.state.item.created_at" disabled>
+                </input-container-component>
             </template>
 
             <template v-slot:rodape>
@@ -149,7 +175,7 @@ export default {
             descricao: '',
             transacaoStatus: '',
             transacaoDetalhes: {},
-            busca: { title: '', description: '' }
+            busca: { title: '', description: '' },
         }
     },
     methods: {
@@ -170,7 +196,7 @@ export default {
             } else {
                 this.urlFiltro = ''
             }
-            console.log(this.urlFiltro);
+            // console.log(this.urlFiltro);
             this.carregarListaTasks() // carrega lista com filtros de pesquisa atualizados
         },
         paginacao(link) {

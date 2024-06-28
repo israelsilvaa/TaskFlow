@@ -7,6 +7,18 @@
 import './bootstrap';
 import { createApp } from 'vue';
 
+// importando e configurando vuex
+import { createStore } from 'vuex';
+
+const store = createStore({
+    state: {
+        item: {},
+        relacionados: '',
+        transacao: { status: '', mensagem: '', dado: '' }
+    }
+});
+
+
 /**
  * Next, we will create a fresh Vue application instance. You may then begin
  * registering components with the application instance so they are ready
@@ -60,4 +72,5 @@ app.component('paginate-component', PaginateComponent);
  * scaffolding. Otherwise, you will need to add an element yourself.
  */
 
+app.use(store);
 app.mount('#app');
