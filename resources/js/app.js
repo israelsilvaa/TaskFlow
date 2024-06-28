@@ -21,6 +21,12 @@ import HomeComponent from './components/Home.vue';
 import TasksComponent from './components/Tasks.vue';
 import CardComponent from './components/Card.vue';
 import InputComponent from './components/InputContainer.vue';
+import TableComponent from './components/Table.vue';
+import ModalComponent from './components/Modal.vue';
+import AlertComponent from './components/Alert.vue';
+import PaginateComponent from './components/Paginate.vue';
+// import TableComponent from './components/Table.vue';
+// import TableComponent from './components/Table.vue';
 
 app.component('example-component', ExampleComponent);
 app.component('login-component', LoginComponent);
@@ -28,6 +34,13 @@ app.component('home-component', HomeComponent);
 app.component('tasks-component', TasksComponent);
 app.component('card-component', CardComponent);
 app.component('input-container-component', InputComponent);
+app.component('table-component', TableComponent);
+app.component('modal-component', ModalComponent);
+app.component('alert-component', AlertComponent);
+app.component('paginate-component', PaginateComponent);
+// app.component('table-component', TableComponent);
+// app.component('table-component', TableComponent);
+// app.component('table-component', TableComponent);
 
 /**
  * The following block of code may be used to automatically register your

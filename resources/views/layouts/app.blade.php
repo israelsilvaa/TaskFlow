@@ -37,10 +37,10 @@
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto">
                         @auth
-                        <li class="nav-item">
-                            <a href="{{ route('tasks') }}" class="nav-link">Tarefas</a>
-                        </li>
-                        {{-- <li class="nav-item dropdown">
+                            <li class="nav-item">
+                                <a href="{{ route('tarefas') }}" class="nav-link">Tarefas</a>
+                            </li>
+                            {{-- <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="tasksDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Gerenciar Tarefas
                             </a>
@@ -49,20 +49,22 @@
                                 <li><a href="#" class="dropdown-item">Criar Tarefa</a></li>
                             </ul>
                         </li> --}}
-                        @if(Auth::user()->role == "admin") <!-- Verifica se o usuário é um administrador -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Administração
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                                <li><a href="#" class="dropdown-item">Gerenciar Usuários</a></li>
-                                <li><a href="#" class="dropdown-item">Atribuir Tarefas</a></li>
-                            </ul>
-                        </li>
-                        @endif
+                            @if (Auth::user()->role == 'admin')
+                                <!-- Verifica se o usuário é um administrador -->
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        Administração
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                        <li><a href="#" class="dropdown-item">Gerenciar Usuários</a></li>
+                                        <li><a href="#" class="dropdown-item">Atribuir Tarefas</a></li>
+                                    </ul>
+                                </li>
+                            @endif
                         @endauth
                     </ul>
-                    
+
 
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ms-auto">
@@ -85,11 +87,11 @@
                                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }}
                                 </a>
-                                
+
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                     <a href="#" class="dropdown-item">Meu perfil</a>
                                     <a class="dropdown-item text-danger" href="{{ route('logout') }}"
-                                    onclick="event.preventDefault();
+                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
                                         {{ __('Logout') }}
                                     </a>
@@ -104,6 +106,14 @@
                 </div>
             </div>
         </nav>
+        @auth
+            <nav aria-label="breadcrumb" class="container">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{route('home')}}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{Route::currentRouteName()}}</li>
+                </ol>
+            </nav>
+        @endauth
 
         <main class="py-4">
             @yield('content')
