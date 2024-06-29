@@ -64,9 +64,10 @@ export default {
 
             this.$store.state.item = { ...obj };
             this.$store.state.user = obj.user.name.toString();
-            this.$store.state.status = obj.status.name.toString();
+            this.$store.state.status = obj.status;
             this.$store.state.relacionados = obj.assigned_users.map(user => user.name).join(', ');
-
+            this.$store.state.atribuidosObj = { ...obj.assigned_users };
+            this.$store.state.assignedUsersIds = obj.assigned_users.map(user => user.id);
         }
     },
     props: ['dados', 'titulos', 'visualizar', 'atualizar', 'remover'],

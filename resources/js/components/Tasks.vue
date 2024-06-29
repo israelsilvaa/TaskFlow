@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-10">
-                <!-- Inicio do card de busca -->
+                <!-- Inicio do card de BUSCCA -->
                 <card-component titulo="Busca de Tasks">
 
                     <template v-slot:conteudo>
@@ -32,11 +32,10 @@
                                     class="fa-solid fa-magnifying-glass"></i> Pesquisar</button>
                         </div>
                     </template>
-
                 </card-component>
-                <!-- Fim do card de busca -->
+                <!-- Fim do card de BUSCCA -->
 
-                <!-- Inicio do card de listagem de tasks -->
+                <!-- Inicio do card de LISTAGEM de tasks -->
                 <card-component titulo="Relação de Tasks">
                     <template v-slot:conteudo>
                         <table-component :dados="tasks.data"
@@ -62,11 +61,11 @@
 
                     </template>
                 </card-component>
-                <!-- Fim do card de listagem de tasks -->
+                <!-- Fim do card de LISTAGEM de tasks -->
             </div>
         </div>
 
-        <!-- Inicio Modal de criação de tasks -->
+        <!-- Inicio Modal de CRIAÇÃO de tasks -->
         <modal-component id="modalTask" titulo="Adicionar task">
             <template v-slot:alertas>
                 <alert-component tipo="success" :detalhes="transacaoDetalhes" titulo="Cadastro realizado com sucesso"
@@ -86,7 +85,7 @@
 
                 <div class="form-group">
                     <input-container-component titulo="Descrição" id="novaDescricao" id-help="novaDescricaoHelp"
-                        texto-ajuda="o que deve ser feito e outras observbações">
+                        texto-ajuda="O que deve ser feito e outras observações">
                         <input type="text" class="form-control" id="novaDescricao"
                             placeholder="baixar base da produção e salvar no driver" v-model="descricao"
                             aria-describedby="novaDescricaoHelp">
@@ -118,7 +117,7 @@
 
                 <div class="form-group">
                     <input-container-component titulo="Data de Entrega" id="dataEntrega" id-help="dataEntregaHelp"
-                        texto-ajuda="quando dever ser entregue">
+                        texto-ajuda="Quando dever ser entregue">
                         <input type="datetime-local" class="form-control" id="dataEntrega" v-model="dataEntrega"
                             aria-describedby="dataEntregaHelp">
                     </input-container-component>
@@ -130,9 +129,9 @@
                 <button type="button" class="btn btn-primary" @click="salvar()">Salvar</button>
             </template>
         </modal-component>
-        <!-- Fim Modal de criação de tasks -->
+        <!-- Fim Modal de CRIAÇÃO de tasks -->
 
-        <!-- Inicio Modal de visualização de tasks -->
+        <!-- Inicio Modal de VISUALIZAÇÃO de tasks -->
         <modal-component id="modalTaskVisualizar" titulo="Visualização de task">
             <template v-slot:alertas>
             </template>
@@ -152,7 +151,9 @@
                         disabled> {{ $store.state.item.description }} </textarea>
                 </input-container-component>
 
-                <status-button-component :status="$store.state.status"></status-button-component>
+                <input-container-component titulo="Status">
+                    <status-button-component :status="$store.state.status"></status-button-component>
+                </input-container-component>
 
                 <input-container-component titulo="Responsável">
                     <input type="text" class="form-control" :value="$store.state.user" disabled>
@@ -171,10 +172,10 @@
                 <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
             </template>
         </modal-component>
-        <!-- Fim Modal de visualização de tasks -->
+        <!-- Fim Modal de VISUALIZAÇÃO de tasks -->
 
-        <!-- Inicio Modal de remoção de tasks -->
-        <modal-component id="modalTaskRemover" titulo="Remover task">
+        <!-- Inicio Modal de REMOÇÃO de tasks -->
+        <modal-component id="modalTaskRemover" titulo="Remoção de task">
             <template v-slot:alertas>
                 <alert-component tipo="success" titulo="Transação realizada com sucesso"
                     :detalhes="$store.state.transacao"
@@ -208,10 +209,10 @@
                     v-if="$store.state.transacao.status != 'sucesso'">Remover</button>
             </template>
         </modal-component>
-        <!-- Fim Modal de remoção de tasks -->
+        <!-- Fim Modal de REMOÇÃO de tasks -->
 
-        <!-- Inicio Modal de atualização de tasks -->
-        <modal-component id="modalTaskAtualizar" titulo="Atualizar task">
+        <!-- Inicio Modal de ATUALIZAÇÃO de tasks -->
+        <modal-component id="modalTaskAtualizar" titulo="Atualização de task">
             <template v-slot:alertas>
                 <alert-component tipo="success" titulo="Transação realizada com sucesso"
                     :detalhes="$store.state.transacao"
@@ -221,7 +222,7 @@
             </template>
 
             <template v-slot:conteudo>
-                <div class="form-group">
+                <div class="form-group mb-2">
                     <input-container-component titulo="Titulo" id="atualizarNovoTitulo"
                         id-help="atualizarNovoTituloHelp" texto-ajuda="Informe o Titulo da task">
                         <input type="text" class="form-control" id="novoTitle" placeholder="Backup dataBase"
@@ -229,35 +230,32 @@
                     </input-container-component>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group mb-2">
                     <input-container-component titulo="Descrição" id="atualizarNovoDescricao"
-                        id-help="atualizarNovoDescricaoHelp" texto-ajuda="Descrição da trask">
+                        id-help="atualizarNovoDescricaoHelp" texto-ajuda="O que deve ser feito e outras observações">
                         <input type="text" class="form-control" id="novoDescription"
-                            placeholder="baixar base da produção e salvar no driver"
+                            placeholder="O que deve ser feito e outras observações"
                             v-model="$store.state.item.description" aria-describedby="atualizarNovoDescricaoHelp">
                     </input-container-component>
                 </div>
 
-                <label :for="id" class="form-label mb-0">Status</label>
-                <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                <status-button-input-component :status="$store.state.status"
+                    :statusList="statusList"></status-button-input-component>
 
-                    <input type="radio" class="btn-check" name="options-outlined" id="secondary-outlined"
-                        autocomplete="off" checked>
-                    <label class="btn btn-outline-secondary" for="secondary-outlined">não iniciado</label>
-
-                    <input type="radio" class="btn-check" name="options-outlined" id="danger-outlined"
-                        autocomplete="off" checked>
-                    <label class="btn btn-outline-danger" for="danger-outlined">Parado</label>
-
-                    <input type="radio" class="btn-check" name="options-outlined" id="info-outlined" autocomplete="off"
-                        checked>
-                    <label class="btn btn-outline-info" for="info-outlined">em andamento</label>
-
-                    <input type="radio" class="btn-check" name="options-outlined" id="success-outlined"
-                        autocomplete="off" checked>
-                    <label class="btn btn-outline-success" for="success-outlined">Finalizado</label>
+                <div class="form-group mt-2 mb-2">
+                    <input-container-component titulo="Atribuir usuários" texto-ajuda="Selecione os usuários a serem atribuídos">
+                        <select-users-component :users="usuarios"
+                            :assignedUsersIds="$store.state.assignedUsersIds"></select-users-component>
+                    </input-container-component>
                 </div>
 
+                <div class="form-group mb-2">
+                    <input-container-component titulo="Data de Entrega" id="dataEntrega" id-help="dataEntregaHelp"
+                        texto-ajuda="quando dever ser entregue">
+                        <input type="datetime-local" class="form-control" id="dataEntrega" v-model="formattedDueDate"
+                            aria-describedby="dataEntregaHelp">
+                    </input-container-component>
+                </div>
             </template>
 
             <template v-slot:rodape>
@@ -265,7 +263,7 @@
                 <button type="button" class="btn btn-warning" @click="atualizar()">Atualizar</button>
             </template>
         </modal-component>
-        <!-- Fim Modal de atualização de tasks -->
+        <!-- Fim Modal de ATUALIZAÇÃO de tasks -->
 
     </div>
 </template>
@@ -282,6 +280,26 @@ export default {
             token = token.split('=')[1]
             token = 'Bearer ' + token
             return token
+        },
+        formattedDueDate: {
+            get() {
+                const dueDate = this.$store.state.item.due_date;
+                if (!dueDate) return ''; // Retorna string vazia se due_date for undefined
+
+                const [date, time] = dueDate.split(' ');
+                const [day, month, year] = date.split('-');
+                return `${year}-${month}-${day}T${time}`;
+            },
+            set(value) {
+                if (!value) {
+                    this.$store.commit('setDueDate', '');
+                    return;
+                }
+
+                const [date, time] = value.split('T');
+                const [year, month, day] = date.split('-');
+                this.$store.commit('setDueDate', `${day}-${month}-${year} ${time}`);
+            }
         }
     },
     data() {
@@ -294,6 +312,7 @@ export default {
             descricao: '',
             usuariosAtribuidos: [],
             usuarios: { data: [] },
+            statusList: {},
             dataEntrega: '',
             transacaoStatus: '',
             transacaoDetalhes: {},
@@ -302,20 +321,25 @@ export default {
     },
     methods: {
         atualizar() {
+            let url = this.urlBase + '/' + this.$store.state.item.id
             let formData = new FormData();
+
             formData.append('_method', 'patch')
             formData.append('title', this.$store.state.item.title)
             formData.append('description', this.$store.state.item.description)
-
-            let url = this.urlBase + '/' + this.$store.state.item.id
+            formData.append('status_id', this.$store.state.updateStatusId)
+            formData.append('usuariosAtribuidos', this.$store.state.assignedUsersIds); // Converte para string JSON            
+            formData.append('due_date', this.formattedDueDate)
 
             axios.post(url, formData)
                 .then(response => {
+                    console.log(response)
                     this.$store.state.transacao.status = 'sucesso'
                     this.$store.state.transacao.mensagem = response.data.success.detail
                     this.carregarListaTasks()
                 })
                 .catch(errors => {
+                    console.log(errors)
                     this.$store.state.transacao.status = 'erro'
                     this.$store.state.transacao.mensagem = errors.response.data.error.detail
                 });
@@ -386,6 +410,16 @@ export default {
                 .catch(errors => {
                 });
         },
+        carregarStatus() {
+            let url = 'http://localhost:8000/api/v1/status'
+
+            axios.get(url)
+                .then(response => {
+                    this.statusList = response.data.success.detail
+                })
+                .catch(errors => {
+                });
+        },
         salvar() {
             let formData = new FormData();
             formData.append('title', this.titulo);
@@ -404,7 +438,6 @@ export default {
                     };
                 })
                 .catch(errors => {
-                    console.log(errors);
 
                     this.transacaoStatus = 'erro';
                     if (errors.response && errors.response.data) {
@@ -430,6 +463,7 @@ export default {
     mounted() {
         this.carregarListaTasks()
         this.carregarUsers()
+        this.carregarStatus()
     }
 
 }
