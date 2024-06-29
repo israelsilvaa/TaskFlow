@@ -2,16 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Task extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id','title', 'description'];
+    protected $fillable = ['user_id', 'title', 'description', 'status_id', 'due_date'];
+    protected $dates = ['created_at', 'updated_at', 'due_date'];
 
-      /**
+    /**
      * Get the user that owns the task.
      */
     public function user()
@@ -25,5 +27,28 @@ class Task extends Model
     public function assignedUsers()
     {
         return $this->belongsToMany(User::class, 'task_assignments');
+    }
+
+    /**
+     * Get the status of the task.
+     */
+    public function status()
+    {
+        return $this->belongsTo(Status::class);
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('d-m-Y H:i');
+    }
+
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('d-m-Y H:i');
+    }
+
+    public function getDueDateAttribute($value)
+    {
+        return Carbon::parse($value)->format('d-m-Y H:i');
     }
 }

@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->enum('status', ['pending', 'completed'])->default('pending');
+            $table->foreignId('status_id')->constrained('status')->default(1);
+            $table->timestamp('due_date')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +27,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('tasks', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+            $table->dropForeign(['status_id']);
+        });
+
         Schema::dropIfExists('tasks');
     }
 };

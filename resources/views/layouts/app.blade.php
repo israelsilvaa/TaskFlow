@@ -24,8 +24,8 @@
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
+                <a class="navbar-brand btn btn-primary p-1" href="{{ url('/') }}">
+                    <i class="fa-solid fa-list-check"></i> {{ config('app.name', 'Laravel') }}
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
@@ -38,28 +38,17 @@
                     <ul class="navbar-nav me-auto">
                         @auth
                             <li class="nav-item">
-                                <a href="{{ route('tarefas') }}" class="nav-link">Tarefas</a>
+                                <a href="{{ route('home') }}" class="btn btn-secondary btn-sm m-1"><i class="fa-solid fa-house"></i> Home</a>
                             </li>
-                            {{-- <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="tasksDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Gerenciar Tarefas
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="tasksDropdown">
-                                <li><a href="#" class="dropdown-item">Listar Tarefas</a></li>
-                                <li><a href="#" class="dropdown-item">Criar Tarefa</a></li>
-                            </ul>
-                        </li> --}}
-                            @if (Auth::user()->role == 'admin')
-                                <!-- Verifica se o usuário é um administrador -->
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                        Administração
+                            <li class="nav-item">
+                                <a href="{{ route('tarefas') }}" class="btn btn-secondary btn-sm m-1"><i class="fa-solid fa-bars"></i> Tarefas</a>
+                            </li>
+                            @if (Auth::user()->role == 'admin' and Route::currentRouteName() == 'tarefas' )
+                                <li>
+                                    <a class="btn btn-secondary btn-sm m-1" data-bs-toggle="modal"
+                                        data-bs-target="#modalTask">
+                                        <i class="fa-solid fa-pen-to-square"></i> Adicionar nova task
                                     </a>
-                                    <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                                        <li><a href="#" class="dropdown-item">Gerenciar Usuários</a></li>
-                                        <li><a href="#" class="dropdown-item">Atribuir Tarefas</a></li>
-                                    </ul>
                                 </li>
                             @endif
                         @endauth
@@ -85,14 +74,14 @@
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
+                                    <i class="fa-solid fa-user"></i> {{ Auth::user()->name }}
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a href="#" class="dropdown-item">Meu perfil</a>
+                                    <a href="#" class="dropdown-item"><i class="fa-solid fa-address-card"></i> Meu perfil</a>
                                     <a class="dropdown-item text-danger" href="{{ route('logout') }}"
                                         onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
+                                                     document.getElementById('logout-form').submit();"><i class="fa-solid fa-door-open"></i>
                                         {{ __('Logout') }}
                                     </a>
 
@@ -109,8 +98,8 @@
         @auth
             <nav aria-label="breadcrumb" class="container">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{route('home')}}">Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{Route::currentRouteName()}}</li>
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ Route::currentRouteName() }}</li>
                 </ol>
             </nav>
         @endauth
@@ -119,7 +108,7 @@
             @yield('content')
         </main>
     </div>
+    <script src="https://kit.fontawesome.com/bf4bab225b.js" crossorigin="anonymous"></script>
 </body>
-{{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script> --}}
 
 </html>

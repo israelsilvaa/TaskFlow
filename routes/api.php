@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['prefix' => 'v1/'], function () {
 
     Route::apiResource('task', TaskController::class)->middleware('jwt.auth');
+    Route::get('users', [TaskController::class, 'usersAll'])->name('users.all')->middleware('jwt.auth');
     
 });
 

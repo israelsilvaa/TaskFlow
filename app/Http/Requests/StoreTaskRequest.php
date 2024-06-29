@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class taskFormRequest extends FormRequest
+class StoreTaskRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,6 +26,8 @@ class taskFormRequest extends FormRequest
         return [
             'title' => ['required', 'min:3', 'max:255'],
             'description' => ['required'],
+            'status_id' => ['exists:status,id'],
+            'due_date' => ['nullable', 'date'],
         ];
     }
 
@@ -40,9 +42,11 @@ class taskFormRequest extends FormRequest
             'title.required' => 'O campo titulo é obrigatório.',
             'title.min' => 'O campo titulo deve ter no mínimo 3 caracteres.',
             'title.max' => 'O campo titulo deve ter no máximo 255 caracteres.',
-            // 'title.unique' => 'O campo titulo ja existe.',
             'description.required' => 'O campo descrição é obrigatório.',
+            'status_id.exists' => 'O status selecionado é inválido.',
+            'due_date.date' => 'A data de entrega deve ser uma data válida.',
         ];
+    
     }
 
      /**
