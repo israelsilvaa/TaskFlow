@@ -42,8 +42,16 @@
                         <table-component :dados="tasks.data"
                             :visualizar="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#modalTaskVisualizar' }"
                             :atualizar="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#modalTaskAtualizar' }"
-                            :remover="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#modalTaskRemover'}"
-                            :titulos="['id', 'title', 'description', 'status.name', 'due_date']"></table-component>
+                            :remover="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#modalTaskRemover' }"
+                            :titulos="{
+                                id: { titulo: 'ID', tipo: 'texto' },
+                                title: { titulo: 'Titulo', tipo: 'texto' },
+                                description: { titulo: 'Descrição', tipo: 'texto' },
+                                status: { titulo: 'Status', tipo: 'status' },
+                                assigned_users: { titulo: 'Atribuidos', tipo: 'array' },
+                                user: { titulo: 'Responsavel', tipo: 'obj' },
+                                due_date: { titulo: 'Entrega', tipo: 'data' },
+                            }"></table-component>
                     </template>
                     <template v-slot:rodape>
                         <paginate-component>
@@ -125,7 +133,7 @@
         <!-- Fim Modal de criação de tasks -->
 
         <!-- Inicio Modal de visualização de tasks -->
-        <modal-component id="modalTaskVisualizar" titulo="Visualizar task">
+        <modal-component id="modalTaskVisualizar" titulo="Visualização de task">
             <template v-slot:alertas>
             </template>
 
@@ -144,20 +152,18 @@
                         disabled> {{ $store.state.item.description }} </textarea>
                 </input-container-component>
 
-                <input-container-component titulo="Status">
-                    <input type="text" class="form-control" :value="$store.state.item.status" disabled>
-                </input-container-component>
+                <status-button-component :status="$store.state.status"></status-button-component>
 
                 <input-container-component titulo="Responsável">
-                    <input type="text" class="form-control" :value="$store.state.responsavel.name" disabled>
+                    <input type="text" class="form-control" :value="$store.state.user" disabled>
                 </input-container-component>
 
-                <input-container-component titulo="Usuarios relacionados">
+                <input-container-component titulo="Usuarios atribuidos">
                     <input type="text" class="form-control" :value="$store.state.relacionados" disabled>
                 </input-container-component>
 
-                <input-container-component titulo="Created_at">
-                    <input type="text" class="form-control" :value="$store.state.item.created_at" disabled>
+                <input-container-component titulo="Entrega">
+                    <input type="text" class="form-control" :value="$store.state.item.due_date" disabled>
                 </input-container-component>
             </template>
 
@@ -232,7 +238,7 @@
                     </input-container-component>
                 </div>
 
-                <!-- <label :for="id" class="form-label mb-0">Status</label>
+                <label :for="id" class="form-label mb-0">Status</label>
                 <div class="btn-group" role="group" aria-label="Basic mixed styles example">
 
                     <input type="radio" class="btn-check" name="options-outlined" id="secondary-outlined"
@@ -250,7 +256,7 @@
                     <input type="radio" class="btn-check" name="options-outlined" id="success-outlined"
                         autocomplete="off" checked>
                     <label class="btn btn-outline-success" for="success-outlined">Finalizado</label>
-                </div> -->
+                </div>
 
             </template>
 
@@ -366,7 +372,6 @@ export default {
             axios.get(url)
                 .then(response => {
                     this.tasks = response.data
-                    console.log("respotaaaa:", response.data)
                 })
                 .catch(errors => {
                 });

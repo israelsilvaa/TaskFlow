@@ -38,8 +38,7 @@ class TaskController extends Controller
                 $query->where('users.id', $user->id);
             });
         }
-        $taskQuery = $taskQuery->with('status:id,name');
-
+        
         // Selecionar colunas de usuários relacionados
         if ($request->has('assignedUsers')) {
             $atributos_assignedUsers = $request->assignedUsers;
@@ -47,7 +46,8 @@ class TaskController extends Controller
         } else {
             $taskQuery = $taskQuery->with('assignedUsers');
         }
-       
+        
+        $taskQuery = $taskQuery->with('status:id,name');
 
         // Selecionar colunas do user criador da task
         if ($request->has('atributos')) {
