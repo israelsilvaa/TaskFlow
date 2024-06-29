@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TaskAssignments;
-use App\Http\Requests\StoreTaskAssignmentsRequest;
-use App\Http\Requests\UpdateTaskAssignmentsRequest;
+use App\Models\Status;
+use App\Http\Requests\StoreStatusRequest;
+use App\Http\Requests\UpdateStatusRequest;
 
-class TaskAssignmentsController extends Controller
+class StatusController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,15 +27,15 @@ class TaskAssignmentsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTaskAssignmentsRequest $request)
+    public function store(StoreStatusRequest $request)
     {
-        
+        //
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(TaskAssignments $taskAssignments)
+    public function show(Status $status)
     {
         //
     }
@@ -43,7 +43,7 @@ class TaskAssignmentsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(TaskAssignments $taskAssignments)
+    public function edit(Status $status)
     {
         //
     }
@@ -51,7 +51,7 @@ class TaskAssignmentsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTaskAssignmentsRequest $request, TaskAssignments $taskAssignments)
+    public function update(UpdateStatusRequest $request, Status $status)
     {
         //
     }
@@ -59,7 +59,7 @@ class TaskAssignmentsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TaskAssignments $taskAssignments)
+    public function destroy(Status $status)
     {
         //
     }

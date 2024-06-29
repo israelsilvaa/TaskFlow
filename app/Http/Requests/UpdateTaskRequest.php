@@ -24,11 +24,13 @@ class UpdateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['min:3', 'max:255'],
+            'title' => ['required', 'min:3', 'max:255'],
+            'description' => ['required'],
+            'status_id' => ['required', 'exists:statuses,id'],
+            'due_date' => ['nullable', 'date'],
         ];
     }
-
-     /**
+    /**
      * Get the error messages for the defined validation rules.
      *
      * @return array<string, string>
@@ -36,13 +38,17 @@ class UpdateTaskRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'title.required' => 'O campo titulo é obrigatório.',
             'title.min' => 'O campo titulo deve ter no mínimo 3 caracteres.',
             'title.max' => 'O campo titulo deve ter no máximo 255 caracteres.',
-            // 'title.unique' => 'O campo titulo ja existe.',
+            'description.required' => 'O campo descrição é obrigatório.',
+            'status_id.required' => 'O campo status é obrigatório.',
+            'status_id.exists' => 'O status selecionado é inválido.',
+            'due_date.date' => 'A data de entrega deve ser uma data válida.',
         ];
     }
 
-     /**
+    /**
      * Handle a failed validation attempt.
      *
      * @param  \Illuminate\Contracts\Validation\Validator  $validator

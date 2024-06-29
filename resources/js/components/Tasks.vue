@@ -24,19 +24,12 @@
                                 </input-container-component>
                             </div>
 
-                            <!-- <div class="col mb-3">
-                                <input-container-component titulo="User" id="inputUser" id-help="userHelp"
-                                    texto-ajuda="Usuário relacionado a task">
-                                    <input type="text" class="form-control" id="inputUser" placeholder="israel"
-                                        aria-describedby="userHelp" v-model="busca.assigned_user_names">
-                                </input-container-component>
-                            </div> -->
-
                         </div>
                     </template>
                     <template v-slot:rodape>
                         <div class="">
-                            <button type="submit" class="btn btn-primary btn-sm" @click="pesquisar()">Pesquisar</button>
+                            <button type="submit" class="btn btn-primary btn-sm" @click="pesquisar()"><i
+                                    class="fa-solid fa-magnifying-glass"></i> Pesquisar</button>
                         </div>
                     </template>
 
@@ -46,12 +39,11 @@
                 <!-- Inicio do card de listagem de tasks -->
                 <card-component titulo="Relação de Tasks">
                     <template v-slot:conteudo>
-                        <table-component :dados="tasks.data" 
-                            :concluir="true"
+                        <table-component :dados="tasks.data"
                             :visualizar="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#modalTaskVisualizar' }"
                             :atualizar="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#modalTaskAtualizar' }"
-                            :remover="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#modalTaskRemover' }"
-                            :titulos="['id', 'title', 'description', 'status', 'created_at']"></table-component>
+                            :remover="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#modalTaskRemover'}"
+                            :titulos="['id', 'title', 'description', 'status.name', 'due_date']"></table-component>
                     </template>
                     <template v-slot:rodape>
                         <paginate-component>
@@ -59,8 +51,7 @@
                                 <a :class="link.active ? 'page-link active' : 'page-link'" v-html="link.label"></a>
                             </li>
                         </paginate-component>
-                        <button type="button" class="btn btn-primary btn-sm m-3" data-bs-toggle="modal"
-                            data-bs-target="#modalTask">Adicionar</button>
+
                     </template>
                 </card-component>
                 <!-- Fim do card de listagem de tasks -->
@@ -72,7 +63,7 @@
             <template v-slot:alertas>
                 <alert-component tipo="success" :detalhes="transacaoDetalhes" titulo="Cadastro realizado com sucesso"
                     v-if="transacaoStatus == 'adicionado'"></alert-component>
-                <alert-component tipo="danger" :detalhes="transacaoDetalhes" titulo="Erro ao tentar cadastrar a marca"
+                <alert-component tipo="danger" :detalhes="transacaoDetalhes" titulo="Erro ao tentar cadastrar a task"
                     v-if="transacaoStatus == 'erro'"></alert-component>
             </template>
 
@@ -87,10 +78,41 @@
 
                 <div class="form-group">
                     <input-container-component titulo="Descrição" id="novaDescricao" id-help="novaDescricaoHelp"
-                        texto-ajuda="Descrição da trask">
+                        texto-ajuda="o que deve ser feito e outras observbações">
                         <input type="text" class="form-control" id="novaDescricao"
                             placeholder="baixar base da produção e salvar no driver" v-model="descricao"
                             aria-describedby="novaDescricaoHelp">
+                    </input-container-component>
+                </div>
+
+                <div class="form-group">
+                    <input-container-component titulo="Atribuir usuários" id="usuariosAtribuidos"
+                        id-help="usuariosAtribuidosHelp" texto-ajuda="Selecione os usuários a serem atribuídos">
+                        <div class="dropdown">
+                            <button class="btn border border-secondary dropdown-toggle" type="button"
+                                id="dropdownUsuarios" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-user-plus" style="color: #039e00;"></i> Selecionar usuários
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownUsuarios">
+                                <li v-for="usuario in usuarios" :key="usuario.id">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" :id="'usuario_' + usuario.id"
+                                            v-model="usuariosAtribuidos" :value="usuario.id">
+                                        <label class="form-check-label" :for="'usuario_' + usuario.id">
+                                            {{ usuario.name }}
+                                        </label>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </input-container-component>
+                </div>
+
+                <div class="form-group">
+                    <input-container-component titulo="Data de Entrega" id="dataEntrega" id-help="dataEntregaHelp"
+                        texto-ajuda="quando dever ser entregue">
+                        <input type="datetime-local" class="form-control" id="dataEntrega" v-model="dataEntrega"
+                            aria-describedby="dataEntregaHelp">
                     </input-container-component>
                 </div>
             </template>
@@ -194,8 +216,8 @@
 
             <template v-slot:conteudo>
                 <div class="form-group">
-                    <input-container-component titulo="Titulo" id="atualizarNovoTitulo" id-help="atualizarNovoTituloHelp"
-                        texto-ajuda="Informe o Titulo da task">
+                    <input-container-component titulo="Titulo" id="atualizarNovoTitulo"
+                        id-help="atualizarNovoTituloHelp" texto-ajuda="Informe o Titulo da task">
                         <input type="text" class="form-control" id="novoTitle" placeholder="Backup dataBase"
                             v-model="$store.state.item.title" aria-describedby="atualizarNovoTituloHelp">
                     </input-container-component>
@@ -209,6 +231,27 @@
                             v-model="$store.state.item.description" aria-describedby="atualizarNovoDescricaoHelp">
                     </input-container-component>
                 </div>
+
+                <!-- <label :for="id" class="form-label mb-0">Status</label>
+                <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+
+                    <input type="radio" class="btn-check" name="options-outlined" id="secondary-outlined"
+                        autocomplete="off" checked>
+                    <label class="btn btn-outline-secondary" for="secondary-outlined">não iniciado</label>
+
+                    <input type="radio" class="btn-check" name="options-outlined" id="danger-outlined"
+                        autocomplete="off" checked>
+                    <label class="btn btn-outline-danger" for="danger-outlined">Parado</label>
+
+                    <input type="radio" class="btn-check" name="options-outlined" id="info-outlined" autocomplete="off"
+                        checked>
+                    <label class="btn btn-outline-info" for="info-outlined">em andamento</label>
+
+                    <input type="radio" class="btn-check" name="options-outlined" id="success-outlined"
+                        autocomplete="off" checked>
+                    <label class="btn btn-outline-success" for="success-outlined">Finalizado</label>
+                </div> -->
+
             </template>
 
             <template v-slot:rodape>
@@ -243,6 +286,9 @@ export default {
             tasks: { data: [] }, // definido como vazio, aguardar a requisição de tasks terminar: carregarListaTasks()
             titulo: '',
             descricao: '',
+            usuariosAtribuidos: [],
+            usuarios: { data: [] },
+            dataEntrega: '',
             transacaoStatus: '',
             transacaoDetalhes: {},
             busca: { title: '', description: '' },
@@ -250,7 +296,6 @@ export default {
     },
     methods: {
         atualizar() {
-
             let formData = new FormData();
             formData.append('_method', 'patch')
             formData.append('title', this.$store.state.item.title)
@@ -275,7 +320,7 @@ export default {
 
             let formData = new FormData();
             formData.append('_method', 'delete')
-           
+
             let url = this.urlBase + '/' + this.$store.state.item.id
 
             axios.post(url, formData)
@@ -321,25 +366,42 @@ export default {
             axios.get(url)
                 .then(response => {
                     this.tasks = response.data
+                    console.log("respotaaaa:", response.data)
+                })
+                .catch(errors => {
+                });
+        },
+        carregarUsers() {
+            let url = 'http://localhost:8000/api/v1/users'
+
+            axios.get(url)
+                .then(response => {
+                    this.usuarios = response.data.success.detail
                 })
                 .catch(errors => {
                 });
         },
         salvar() {
             let formData = new FormData();
-            formData.append('title', this.titulo)
-            formData.append('description', this.descricao)
-         
-            // recupera a resposta/erros de forma assincrona
+            formData.append('title', this.titulo);
+            formData.append('description', this.descricao);
+            formData.append('usuariosAtribuidos', JSON.stringify(this.usuariosAtribuidos)); // Converte para string JSON
+            // Converte para formato `YYYY-MM-DD HH:MM:SS`
+            let dataEntrega = new Date(this.dataEntrega).toISOString().slice(0, 19).replace('T', ' ');
+            formData.append('due_date', dataEntrega);
+
+            // Recupera a resposta/erros de forma assíncrona
             axios.post(this.urlBase, formData)
                 .then(response => {
-                    this.transacaoStatus = 'adicionado'
+                    this.transacaoStatus = 'adicionado';
                     this.transacaoDetalhes = {
                         mensagem: 'ID do registro: ' + response.data.success.detail.id
-                    }
+                    };
                 })
                 .catch(errors => {
-                    this.transacaoStatus = 'erro'
+                    console.log(errors);
+
+                    this.transacaoStatus = 'erro';
                     if (errors.response && errors.response.data) {
                         if (errors.response.data.error) {
                             // Caso 1: Formato com 'error'
@@ -348,20 +410,21 @@ export default {
                                 dados: errors.response.data.error.detail
                             };
                         } else if (errors.response.data.message) {
-                            // Caso 2: Formato com 'message' 
+                            // Caso 2: Formato com 'message'
                             this.transacaoDetalhes = {
                                 mensagem: errors.response.data.message,
                                 // dados: errors.response.data.errors
                             };
                         }
                     }
-
                 });
+
             this.carregarListaTasks()
         }
     },
     mounted() {
         this.carregarListaTasks()
+        this.carregarUsers()
     }
 
 }

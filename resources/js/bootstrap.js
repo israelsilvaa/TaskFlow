@@ -49,11 +49,11 @@ axios.interceptors.request.use(
 
         config.headers.Authorization = token;
 
-        console.log("Interceptando o request antes do envio", config);
+        // console.log("Interceptando o request antes do envio", config);
         return config;
     },
     (error) => {
-        console.log("Erro na requisição: ", error);
+        // console.log("Erro na requisição: ", error);
         return Promise.reject(error);
     }
 );
@@ -64,48 +64,21 @@ axios.interceptors.response.use(
         return response;
     },
     (error) => {
-        console.log("Erro na resposta: ", error.response);
+        // console.log("Erro na resposta: ", error.response);
 
         if (
             error.response.status == 401 &&
             error.response.data.message == "Token has expired"
         ) {
-            console.log("Fazer uma nova requisição para rota refresh");
+            // console.log("Fazer uma nova requisição para rota refresh");
 
             axios
-                .post("http://localhost:8000/api/v1/refresh")
+                .post("http://localhost:8000/api/refresh")
                 .then((response) => {
-                    console.log("Refresh com sucesso: ", response);
+                    // console.log("Refresh com sucesso: ", response);
 
                     document.cookie = "token=" + response.data.token;
-                    console.log("Token atualizado: ", response.data.token);
-                    window.location.reload();
-                });
-        }
-        return Promise.reject(error);
-    }
-);
-/* interceptar os responses da aplicação */
-axios.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-    (error) => {
-        console.log("Erro na resposta: ", error.response);
-
-        if (
-            error.response.status == 401 &&
-            error.response.data.message == "Token has expired"
-        ) {
-            console.log("Fazer uma nova requisição para rota refresh");
-
-            axios
-                .post("http://localhost:8000/api/v1/refresh")
-                .then((response) => {
-                    console.log("Refresh com sucesso: ", response);
-
-                    document.cookie = "token=" + response.data.token;
-                    console.log("Token atualizado: ", response.data.token);
+                    // console.log("Token atualizado: ", response.data.token);
                     window.location.reload();
                 });
         }
