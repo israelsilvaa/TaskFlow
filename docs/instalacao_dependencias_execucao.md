@@ -14,7 +14,7 @@
         - Edite o arquivo `php.ini` (localizado em `C:\xampp\php\php.ini`) .
         - e descomente as seguintes linhas removendo o `;`
     ```ini
-    extension=zip 
+    ;extension=zip 
     ```
 
 ### `Composer v2.5` - [Download⬇️](https://getcomposer.org/download/) 

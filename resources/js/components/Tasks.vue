@@ -318,19 +318,26 @@ export default {
     },
     data() {
         return {
+            // busca
             urlBase: 'http://localhost:8000/api/v1/task',
             urlPaginacao: '',
             urlFiltro: '',
+            busca: { title: '', description: '', status_id: '' },
+
+            // visualizar 
             tasks: { data: [] }, // definido como vazio, aguardar a requisição de tasks terminar: carregarListaTasks()
+            statusList: {},
+            usuarios: { data: [] },
+
+            // atualizar/criar
             titulo: '',
             descricao: '',
             usuariosAtribuidos: [],
-            usuarios: { data: [] },
-            statusList: {},
             dataEntrega: '',
             transacaoStatus: '',
             transacaoDetalhes: {},
-            busca: { title: '', description: '', status_id: '' },
+
+            // permissão botão: atualizar/remover
             userRole: '',
         }
     },

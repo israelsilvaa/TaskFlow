@@ -32,6 +32,7 @@ const store = createStore({
         setAtribuidosObj(state, atribuidos) {
             state.atribuidosObj = atribuidos;
         },
+        
         addUsuarioAtribuido(state, id) {
             if (!state.assignedUsersIds.includes(id)) {
                 state.assignedUsersIds.push(id);
