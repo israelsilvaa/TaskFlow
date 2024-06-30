@@ -17,7 +17,7 @@ const store = createStore({
         status: "",
         responsavel: {},
         relacionados: "",
-        atribuidosObj: {data: []},
+        atribuidosObj: { data: [] },
         transacao: { status: "", mensagem: "", dado: "" },
         due_date: getCurrentDateTimeCustomFormat(),
 
@@ -38,7 +38,9 @@ const store = createStore({
             }
         },
         removeUsuarioAtribuido(state, id) {
-            state.assignedUsersIds = state.assignedUsersIds.filter(userId => userId !== id);
+            state.assignedUsersIds = state.assignedUsersIds.filter(
+                (userId) => userId !== id
+            );
         },
     },
 });
@@ -63,6 +65,7 @@ const app = createApp({});
 
 import ExampleComponent from "./components/ExampleComponent.vue";
 import LoginComponent from "./components/Login.vue";
+import RegisterComponent from "./components/Register.vue";
 import HomeComponent from "./components/Home.vue";
 import TasksComponent from "./components/Tasks.vue";
 import CardComponent from "./components/Card.vue";
@@ -78,6 +81,7 @@ import SelectStatusComponent from "./components/SelectStatus.vue";
 
 app.component("example-component", ExampleComponent);
 app.component("login-component", LoginComponent);
+app.component("register-component", RegisterComponent);
 app.component("home-component", HomeComponent);
 app.component("tasks-component", TasksComponent);
 app.component("card-component", CardComponent);
@@ -90,7 +94,6 @@ app.component("status-button-component", StatusButtonComponent);
 app.component("status-button-input-component", StatusButtonInputComponent);
 app.component("select-users-component", SelectUsersComponent);
 app.component("select-status-component", SelectStatusComponent);
-// app.component('table-component', TableComponent);
 
 /**
  * The following block of code may be used to automatically register your
