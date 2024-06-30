@@ -15,11 +15,9 @@ const store = createStore({
         item: {},
         user: {},
         status: "",
-        responsavel: {},
         relacionados: "",
-        atribuidosObj: { data: [] },
         transacao: { status: "", mensagem: "", dado: "" },
-        due_date: getCurrentDateTimeCustomFormat(),
+        due_date: "",
 
         // atualizar
         assignedUsersIds: [],
@@ -29,10 +27,6 @@ const store = createStore({
         setDueDate(state, date) {
             state.item.due_date = date;
         },
-        setAtribuidosObj(state, atribuidos) {
-            state.atribuidosObj = atribuidos;
-        },
-        
         addUsuarioAtribuido(state, id) {
             if (!state.assignedUsersIds.includes(id)) {
                 state.assignedUsersIds.push(id);
@@ -46,15 +40,6 @@ const store = createStore({
     },
 });
 
-function getCurrentDateTimeCustomFormat() {
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, "0");
-    const month = String(now.getMonth() + 1).padStart(2, "0"); // Os meses são baseados em zero
-    const year = now.getFullYear();
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    return `${day}-${month}-${year} ${hours}:${minutes}`;
-}
 
 /**
  * Next, we will create a fresh Vue application instance. You may then begin

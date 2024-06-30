@@ -62,10 +62,10 @@ export default {
             this.$store.state.transacao.detalhes = ''
 
             this.$store.state.item = { ...obj };
+
             this.$store.state.user = obj.user.name.toString();
             this.$store.state.status = obj.status;
-            this.$store.state.relacionados = obj.assigned_users.map(user => user.name).join(', ');
-            this.$store.state.atribuidosObj = { ...obj.assigned_users };
+            this.$store.state.relacionados = obj.assigned_users.map(user => user.name).join(', '); // string 'israel,maria'
             this.$store.state.assignedUsersIds = obj.assigned_users.map(user => user.id);
         }
     },
