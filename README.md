@@ -5,7 +5,8 @@ Bem-vindo ao Taskflow, a solução definitiva para gerenciar suas tarefas de for
 
 
 
-> [!TIP] Enunciado do desafio
+> [!TIP] 
+> Enunciado do desafio:
 > [Clique aqui](/docs/enunciado_teste_pratico.md)
 
 <!-- 
