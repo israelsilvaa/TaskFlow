@@ -14,12 +14,44 @@ const store = createStore({
     state: {
         item: {},
         user: {},
-        status: {},
+        status: "",
         responsavel: {},
         relacionados: "",
+        atribuidosObj: {data: []},
         transacao: { status: "", mensagem: "", dado: "" },
+        due_date: getCurrentDateTimeCustomFormat(),
+
+        // atualizar
+        assignedUsersIds: [],
+        updateStatusId: 1,
+    },
+    mutations: {
+        setDueDate(state, date) {
+            state.item.due_date = date;
+        },
+        setAtribuidosObj(state, atribuidos) {
+            state.atribuidosObj = atribuidos;
+        },
+        addUsuarioAtribuido(state, id) {
+            if (!state.assignedUsersIds.includes(id)) {
+                state.assignedUsersIds.push(id);
+            }
+        },
+        removeUsuarioAtribuido(state, id) {
+            state.assignedUsersIds = state.assignedUsersIds.filter(userId => userId !== id);
+        },
     },
 });
+
+function getCurrentDateTimeCustomFormat() {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, "0");
+    const month = String(now.getMonth() + 1).padStart(2, "0"); // Os meses são baseados em zero
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+}
 
 /**
  * Next, we will create a fresh Vue application instance. You may then begin
@@ -40,7 +72,9 @@ import ModalComponent from "./components/Modal.vue";
 import AlertComponent from "./components/Alert.vue";
 import PaginateComponent from "./components/Paginate.vue";
 import StatusButtonComponent from "./components/StatusButtonComponent.vue";
-// import TableComponent from './components/Table.vue';
+import StatusButtonInputComponent from "./components/StatusButtonInputComponent.vue";
+import SelectUsersComponent from "./components/SelectUsers.vue";
+import SelectStatusComponent from "./components/SelectStatus.vue";
 
 app.component("example-component", ExampleComponent);
 app.component("login-component", LoginComponent);
@@ -53,7 +87,9 @@ app.component("modal-component", ModalComponent);
 app.component("alert-component", AlertComponent);
 app.component("paginate-component", PaginateComponent);
 app.component("status-button-component", StatusButtonComponent);
-// app.component('table-component', TableComponent);
+app.component("status-button-input-component", StatusButtonInputComponent);
+app.component("select-users-component", SelectUsersComponent);
+app.component("select-status-component", SelectStatusComponent);
 // app.component('table-component', TableComponent);
 
 /**

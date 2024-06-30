@@ -38,12 +38,14 @@
                     <ul class="navbar-nav me-auto">
                         @auth
                             <li class="nav-item">
-                                <a href="{{ route('home') }}" class="btn btn-secondary btn-sm m-1"><i class="fa-solid fa-house"></i> Home</a>
+                                <a href="{{ route('home') }}" class="btn btn-secondary btn-sm m-1"><i
+                                        class="fa-solid fa-house"></i> Home</a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('tarefas') }}" class="btn btn-secondary btn-sm m-1"><i class="fa-solid fa-bars"></i> Tarefas</a>
+                                <a href="{{ route('tarefas') }}" class="btn btn-secondary btn-sm m-1"><i
+                                        class="fa-solid fa-bars"></i> Tarefas</a>
                             </li>
-                            @if (Auth::user()->role == 'admin' and Route::currentRouteName() == 'tarefas' )
+                            @if (Auth::user()->role == 'admin' and Route::currentRouteName() == 'tarefas')
                                 <li>
                                     <a class="btn btn-secondary btn-sm m-1" data-bs-toggle="modal"
                                         data-bs-target="#modalTask">
@@ -74,14 +76,21 @@
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    <i class="fa-solid fa-user"></i> {{ Auth::user()->name }}
+                                    @if (Auth::user()->role == 'admin')
+                                        <i class="fa-solid fa-shield-halved" ></i>
+                                    @else
+                                        <i class="fa-solid fa-user"></i>
+                                    @endif
+                                    {{ Auth::user()->name }}
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a href="#" class="dropdown-item"><i class="fa-solid fa-address-card"></i> Meu perfil</a>
+                                    <a href="#" class="dropdown-item"><i class="fa-solid fa-address-card"></i> Meu
+                                        perfil</a>
                                     <a class="dropdown-item text-danger" href="{{ route('logout') }}"
                                         onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();"><i class="fa-solid fa-door-open"></i>
+                                                     document.getElementById('logout-form').submit();"><i
+                                            class="fa-solid fa-door-open"></i>
                                         {{ __('Logout') }}
                                     </a>
 

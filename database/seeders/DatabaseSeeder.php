@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
-            StatusSeeder::class,
+            StatusesSeeder::class,
         ]);
         
     }

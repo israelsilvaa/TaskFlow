@@ -5,11 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Status extends Model
+class Statuses extends Model
 {
     use HasFactory;
     protected $fillable = ['name'];
-    protected $table = 'status';
     /**
      * Get the tasks for the status.
      */

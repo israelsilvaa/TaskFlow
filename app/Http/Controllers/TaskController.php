@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use Exception;
-// use Carbon\Carbon;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Models\TaskAssignments;
 
 class TaskController extends Controller
 {
@@ -34,11 +34,19 @@ class TaskController extends Controller
         // Verifique o papel do usuário
         if ($user->role !== 'admin') {
             // Se não for admin, o usuário pode ver apenas tasks relacionadas
-            $taskQuery = $taskQuery->whereHas('assignedUsers', function ($query) use ($user) {
+            $taskQuery->whereHas('assignedUsers', function ($query) use ($user) {
                 $query->where('users.id', $user->id);
             });
+        } else {
+            // Se for admin, pode ver todas as tasks que criou e as tasks relacionadas
+            $taskQuery->where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                    ->orWhereHas('assignedUsers', function ($subQuery) use ($user) {
+                        $subQuery->where('users.id', $user->id);
+                    });
+            });
         }
-        
+
         // Selecionar colunas de usuários relacionados
         if ($request->has('assignedUsers')) {
             $atributos_assignedUsers = $request->assignedUsers;
@@ -46,7 +54,7 @@ class TaskController extends Controller
         } else {
             $taskQuery = $taskQuery->with('assignedUsers');
         }
-        
+
         $taskQuery = $taskQuery->with('status:id,name');
 
         // Selecionar colunas do user criador da task
@@ -62,7 +70,7 @@ class TaskController extends Controller
             $filtros = explode(';', $request->filtro);
             foreach ($filtros as $condicoes) {
                 $c = explode(':', $condicoes);
-                $taskQuery = $taskQuery->where($c[0], $c[1], $c[2]);
+                $taskQuery = $taskQuery->where($c[0], $c[1],  '%' . $c[2] . '%' );
             }
         }
 
@@ -181,7 +189,6 @@ class TaskController extends Controller
             $user = JWTAuth::parseToken()->authenticate();
             $task = $this->task->find($id);
 
-            // dd($task, $id);
 
             // Verifica se a tarefa existe
             if ($task === null) {
@@ -197,7 +204,8 @@ class TaskController extends Controller
             // Verifica se o usuário tem permissão para atualizar a tarefa
             $isRelatedUser = $task->assignedUsers->contains('id', $user->id);
             if ($task->user_id !== $user->id && !$isRelatedUser) {
-                // if ($task->user_id !== $user->id) {
+
+
                 return response()->json([
                     "error" => [
                         "status" => "403",
@@ -206,6 +214,38 @@ class TaskController extends Controller
                     ]
                 ], 403);
             }
+
+
+            if (gettype($request->usuariosAtribuidos) != "NULL") {
+                // Obtém os IDs de usuários atribuídos do request e converte para array de inteiros
+                $atribuidos = explode(',', $request->usuariosAtribuidos);
+                $atribuidos = array_map('intval', $atribuidos);
+
+                // Obtém os registros atuais na tabela task_assignments para a task em questão
+                $currentAssignments = TaskAssignments::where('task_id', $task->id)
+                    ->pluck('user_id')
+                    ->toArray(); // 
+                $toRemove = array_diff($currentAssignments, $atribuidos);
+
+                // // Remove os registros que estão na tabela mas não estão na lista de atribuídos
+                if (!empty($toRemove)) {
+                    TaskAssignments::where('task_id', $task->id)
+                        ->whereIn('user_id', $toRemove)
+                        ->delete();
+                }
+
+                // Adiciona novos registros para os atribuídos que não estão na tabela
+                $toAdd = array_diff($atribuidos, $currentAssignments);
+                foreach ($toAdd as $userId) {
+                    $taskAssignment = new TaskAssignments();
+                    $taskAssignment->task_id = $task->id;
+                    $taskAssignment->user_id = $userId;
+                    $taskAssignment->save();
+                }
+            } else {
+                TaskAssignments::where('task_id', $task->id)->delete();
+            }
+
 
             // Tenta atualizar a tarefa
             if ($task->update($request->all())) {

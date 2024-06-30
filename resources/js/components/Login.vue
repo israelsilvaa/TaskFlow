@@ -67,11 +67,8 @@ export default {
             fetch(url, configuracao)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.token) {
-                        document.cookie = 'token=' + data.token + ';SameSite=Lax'
-                    } else if (data.success && data.success.detail && data.success.detail.Token) {
-                        document.cookie = 'token=' + data.success.detail.Token + ';SameSite=Lax'
-                    }
+                    document.cookie = 'token=' + data.success.detail.Token + ';SameSite=Lax'
+
                     // dar sequencia ao envio do form por sessão
                     e.target.submit()
                 })

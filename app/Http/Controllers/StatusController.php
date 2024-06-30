@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Status;
+use Exception;
+use App\Models\Statuses;
 use App\Http\Requests\StoreStatusRequest;
 use App\Http\Requests\UpdateStatusRequest;
+
 
 class StatusController extends Controller
 {
@@ -13,7 +15,24 @@ class StatusController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $status = Statuses::all();
+
+            return response()->json([
+                "success" => [
+                    "status" => "200", "title" => "OK", "detail" => $status
+                ]
+            ], 201);
+        } catch (Exception $e) {
+
+            return response()->json([
+                "error" => [
+                    "status" => "500",
+                    "title" => "Internal Server Error",
+                    "detail" => $e->getMessage(),
+                ]
+            ], 500);
+        }
     }
 
     /**
@@ -35,7 +54,7 @@ class StatusController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Status $status)
+    public function show(Statuses $status)
     {
         //
     }
@@ -43,7 +62,7 @@ class StatusController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Status $status)
+    public function edit(Statuses $status)
     {
         //
     }
@@ -51,7 +70,7 @@ class StatusController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateStatusRequest $request, Status $status)
+    public function update(UpdateStatusRequest $request, Statuses $status)
     {
         //
     }
@@ -59,7 +78,7 @@ class StatusController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Status $status)
+    public function destroy(Statuses $status)
     {
         //
     }

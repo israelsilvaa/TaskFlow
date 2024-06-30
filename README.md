@@ -16,16 +16,27 @@ Após baixar e instalar as dependências, execute os passos:
 1. Iniciar o servidor apache do xampp.
 
 
-2. **Comandos no terminal (dentro do diretório do projeto):**
+2. **Copiar .env:**
+
+
+3. **Comandos no terminal (dentro do diretório do projeto):**
 
    - Composer install
 
    - php artisan key:generate
 
+   - php artisan migrate
+  
+   - php artisan db:seed
+   
+   - php artisan jwt:secret
+
    - php artisan serve
-
+   
    - npm install
-
+   
+   - npm install vuex
+   
    - npm run dev
 
 Após isso basta clicar no link que aparecera no terminal ou acessar em seu navegador a url: http://127.0.0.1:8000
