@@ -3,7 +3,7 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">logar</div>
+                    <div class="card-header">Entrar</div>
                     <div class="card-body">
                         <form method="POST" action="" @submit.prevent="login($event)">
                             <input type="hidden" name="_token" :value="csrf_token">
@@ -32,7 +32,7 @@
                             <div class="row mb-0">
                                 <div class="col-md-8 offset-md-4">
                                     <button type="submit" class="btn btn-primary">
-                                        Login
+                                        Entrar
                                     </button>
 
                                     <!-- <a class="btn btn-link" href="">
