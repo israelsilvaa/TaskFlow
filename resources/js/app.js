@@ -15,8 +15,8 @@ const store = createStore({
         item: {},
         user: {},
         status: "",
-        relacionados: "",
-        transacao: { status: "", mensagem: "", dado: "" },
+        assignedUsersNames: "",
+        request: { status: "", mensagem: "", dado: "" },
         due_date: "",
 
         // atualizar
@@ -27,6 +27,8 @@ const store = createStore({
         setDueDate(state, date) {
             state.item.due_date = date;
         },
+
+        // atribuindo uaurios a uma task
         addUsuarioAtribuido(state, id) {
             if (!state.assignedUsersIds.includes(id)) {
                 state.assignedUsersIds.push(id);

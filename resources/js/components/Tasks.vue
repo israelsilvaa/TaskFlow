@@ -50,9 +50,9 @@
                 <card-component titulo="Relação de Tasks">
                     <template v-slot:conteudo>
                         <table-component :dados="tasks.data"
-                            :visualizar="{ userRole: userRole, dataBsTarget: '#modalTaskVisualizar' }"
-                            :atualizar="{ userRole: userRole, dataBsTarget: '#modalTaskAtualizar' }"
-                            :remover="{ userRole: userRole, dataBsTarget: '#modalTaskRemover' }" :titulos="{
+                            :visualizar="{ userLogged: userLogged, dataBsTarget: '#modalTaskVisualizar' }"
+                            :atualizar="{ userLogged: userLogged, dataBsTarget: '#modalTaskAtualizar' }"
+                            :remover="{ userLogged: userLogged, dataBsTarget: '#modalTaskRemover' }" :titulos="{
                                 id: { titulo: 'ID', tipo: 'texto' },
                                 title: { titulo: 'Título', tipo: 'texto' },
                                 description: { titulo: 'Descrição', tipo: 'texto' },
@@ -173,7 +173,7 @@
                 </input-container-component>
 
                 <input-container-component titulo="Usuarios atribuidos">
-                    <input type="text" class="form-control" :value="$store.state.relacionados" disabled>
+                    <input type="text" class="form-control" :value="$store.state.assignedUsersNames" disabled>
                 </input-container-component>
 
                 <input-container-component titulo="Entrega">
@@ -191,13 +191,12 @@
         <modal-component id="modalTaskRemover" titulo="Remoção de task">
             <template v-slot:alertas>
                 <alert-component tipo="success" titulo="Transação realizada com sucesso"
-                    :detalhes="$store.state.transacao"
-                    v-if="$store.state.transacao.status == 'sucesso'"></alert-component>
-                <alert-component tipo="danger" titulo="Erro na transação" :detalhes="$store.state.transacao"
-                    v-if="$store.state.transacao.status == 'erro'"></alert-component>
+                    :detalhes="$store.state.request" v-if="$store.state.request.status == 'sucesso'"></alert-component>
+                <alert-component tipo="danger" titulo="Erro na transação" :detalhes="$store.state.request"
+                    v-if="$store.state.request.status == 'erro'"></alert-component>
             </template>
 
-            <template v-slot:conteudo v-if="$store.state.transacao.status != 'sucesso'">
+            <template v-slot:conteudo v-if="$store.state.request.status != 'sucesso'">
                 <input-container-component titulo="ID">
                     <input type="text" class="form-control" :value="$store.state.item.id" disabled>
                 </input-container-component>
@@ -211,15 +210,15 @@
                         disabled> {{ $store.state.item.description }} </textarea>
                 </input-container-component>
 
-                <input-container-component titulo="Status">
-                    <input type="text" class="form-control" :value="$store.state.item.status" disabled>
+                <input-container-component titulo="Status" v-if="isUserLoggedIn">
+                    <status-button-component :status="$store.state.item.status.name"></status-button-component>
                 </input-container-component>
             </template>
 
             <template v-slot:rodape>
                 <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
                 <button type="button" class="btn btn-danger m-1" @click="remover()"
-                    v-if="$store.state.transacao.status != 'sucesso'">Remover</button>
+                    v-if="$store.state.request.status != 'sucesso'">Remover</button>
             </template>
         </modal-component>
         <!-- Fim Modal de REMOÇÃO de tasks -->
@@ -228,10 +227,9 @@
         <modal-component id="modalTaskAtualizar" titulo="Atualização de task">
             <template v-slot:alertas>
                 <alert-component tipo="success" titulo="Transação realizada com sucesso"
-                    :detalhes="$store.state.transacao"
-                    v-if="$store.state.transacao.status == 'sucesso'"></alert-component>
-                <alert-component tipo="danger" titulo="Erro na transação" :detalhes="$store.state.transacao"
-                    v-if="$store.state.transacao.status == 'erro'"></alert-component>
+                    :detalhes="$store.state.request" v-if="$store.state.request.status == 'sucesso'"></alert-component>
+                <alert-component tipo="danger" titulo="Erro na transação" :detalhes="$store.state.request"
+                    v-if="$store.state.request.status == 'erro'"></alert-component>
             </template>
 
             <template v-slot:conteudo>
@@ -255,7 +253,7 @@
                 <status-button-input-component :status="$store.state.status"
                     :statusList="statusList"></status-button-input-component>
 
-                <div class="form-group mt-2 mb-2" v-if="userRole == 'admin'">
+                <div class="form-group mt-2 mb-2" v-if="isUserLoggedIn">
                     <input-container-component titulo="Atribuir usuários"
                         texto-ajuda="Selecione os usuários a serem atribuídos">
                         <select-users-component :users="usuarios"
@@ -263,7 +261,7 @@
                     </input-container-component>
                 </div>
 
-                <div class="form-group mb-2" v-if="userRole == 'admin'">
+                <div class="form-group mb-2" v-if="isUserLoggedIn">
                     <input-container-component titulo="Data de Entrega" id="dataEntrega" id-help="dataEntregaHelp"
                         texto-ajuda="quando dever ser entregue">
                         <input type="datetime-local" class="form-control" id="dataEntrega" v-model="formattedDueDate"
@@ -314,6 +312,9 @@ export default {
                 const [year, month, day] = date.split('-');
                 this.$store.commit('setDueDate', `${day}-${month}-${year} ${time}`);
             }
+        },
+        isUserLoggedIn() {
+            return this.$store.state.item && this.$store.state.item.user && this.userLogged.id == this.$store.state.item.user.id;
         }
     },
     data() {
@@ -338,7 +339,7 @@ export default {
             transacaoDetalhes: {},
 
             // permissão botão: atualizar/remover
-            userRole: '',
+            userLogged: '',
         }
     },
     methods: {
@@ -355,13 +356,13 @@ export default {
 
             axios.post(url, formData)
                 .then(response => {
-                    this.$store.state.transacao.status = 'sucesso'
-                    this.$store.state.transacao.mensagem = response.data.success.detail
+                    this.$store.state.request.status = 'sucesso'
+                    this.$store.state.request.mensagem = response.data.success.detail
                     this.carregarListaTasks()
                 })
                 .catch(errors => {
-                    this.$store.state.transacao.status = 'erro'
-                    this.$store.state.transacao.mensagem = errors.response.data.error.detail
+                    this.$store.state.request.status = 'erro'
+                    this.$store.state.request.mensagem = errors.response.data.error.detail
                 });
         },
         remover() {
@@ -375,12 +376,12 @@ export default {
 
             axios.post(url, formData)
                 .then(response => {
-                    this.$store.state.transacao.status = 'sucesso'
-                    this.$store.state.transacao.mensagem = response.data.success.detail
+                    this.$store.state.request.status = 'sucesso'
+                    this.$store.state.request.mensagem = response.data.success.detail
                 })
                 .catch(errors => {
-                    this.$store.state.transacao.status = 'erro'
-                    this.$store.state.transacao.mensagem = errors.response.data.error.detail
+                    this.$store.state.request.status = 'erro'
+                    this.$store.state.request.mensagem = errors.response.data.error.detail
                 });
             this.carregarListaTasks()
         },
@@ -425,7 +426,7 @@ export default {
             let url = 'http://127.0.0.1:8000/api/me';
             axios.post(url)
                 .then(response => {
-                    this.userRole = response.data.success.detail.User.role
+                    this.userLogged = response.data.success.detail.User
                 })
                 .catch(errors => {
                 });

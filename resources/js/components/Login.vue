@@ -12,7 +12,7 @@
 
                                 <div class="col-md-6">
                                     <input id="email" type="email" :class="'form-control ' + error_classe" name="email"
-                                        value="" required autocomplete="email" autofocus v-model="email">
+                                        required autocomplete="email" autofocus v-model="email">
                                 </div>
                             </div>
 
@@ -57,6 +57,7 @@ export default {
             password: '',
             error_email: '',
             error_password: '',
+            error_classe: '',
             error_login: '',
         }
     },
@@ -64,20 +65,31 @@ export default {
         login(e) {
             let url = 'http://localhost:8000/api/login'
             let configuracao = {
-                method: 'post',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json',
+                },
                 body: new URLSearchParams({
                     'email': this.email,
                     'password': this.password
                 })
             }
             fetch(url, configuracao)
-                .then(response => response.json())
+                .then(response => {
+                    // Verifique se a resposta é realmente JSON
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new TypeError("A resposta da API não é JSON");
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         document.cookie = 'token=' + data.success.detail.Token + ';SameSite=Lax'
                         e.target.submit()
                     } else {
-                        // Lidar com erros de registro aqui
+                        // Lidar com erros de login aqui
                         console.error('Erro ao logar:', data);
                         this.email = ''
                         this.password = ''
@@ -87,10 +99,9 @@ export default {
                 })
                 .catch(error => {
                     console.error('Erro na requisição:', error);
+                    this.error_login = 'Erro na requisição: ' + error.message;
                 });
-
         },
     }
-
 }
 </script>
