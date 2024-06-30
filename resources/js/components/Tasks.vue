@@ -4,11 +4,10 @@
             <div class="col-md-10">
                 <!-- Inicio do card de BUSCCA -->
                 <card-component titulo="Busca de Tasks">
-
                     <template v-slot:conteudo>
                         <div class="row">
                             <div class="col mb-3">
-                                <input-container-component titulo="Titulo" id="inputTask" id-help="tituloHelp"
+                                <input-container-component titulo="Título" id="inputTask" id-help="tituloHelp"
                                     texto-ajuda="Informe o Titulo da task">
                                     <input type="text" class="form-control" id="inputTask" placeholder="Backup dataBase"
                                         aria-describedby="tituloHelp" v-model="busca.title">
@@ -16,12 +15,24 @@
                             </div>
 
                             <div class="col mb-3">
-                                <input-container-component titulo="Description" id="inputDescription"
+                                <input-container-component titulo="Descrição" id="inputDescription"
                                     id-help="descriptionHelp" texto-ajuda="Informe a Descrição da task">
                                     <input type="text" class="form-control" id="inputDescription"
                                         placeholder="baixar e upar no driver" aria-describedby="descriptionHelp"
                                         v-model="busca.description">
                                 </input-container-component>
+                            </div>
+
+                            <div class="col mb-3">
+                                <select-status-component titulo="Status" id="selectStatus" id-help="selectStatusHelp"
+                                    texto-ajuda="Filtre por status">
+                                    <select class="form-select m-0" aria-label="Default select example"
+                                        v-model="busca.status_id">
+                                        <option selected value="">Selecione um status</option>
+                                        <option v-for="obj in statusList" :key="obj.id" :value="obj.id">{{ obj.name }}
+                                        </option>
+                                    </select>
+                                </select-status-component>
                             </div>
 
                         </div>
@@ -39,16 +50,15 @@
                 <card-component titulo="Relação de Tasks">
                     <template v-slot:conteudo>
                         <table-component :dados="tasks.data"
-                            :visualizar="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#modalTaskVisualizar' }"
-                            :atualizar="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#modalTaskAtualizar' }"
-                            :remover="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#modalTaskRemover' }"
-                            :titulos="{
+                            :visualizar="{ userRole: userRole, dataBsTarget: '#modalTaskVisualizar' }"
+                            :atualizar="{ userRole: userRole, dataBsTarget: '#modalTaskAtualizar' }"
+                            :remover="{ userRole: userRole, dataBsTarget: '#modalTaskRemover' }" :titulos="{
                                 id: { titulo: 'ID', tipo: 'texto' },
-                                title: { titulo: 'Titulo', tipo: 'texto' },
+                                title: { titulo: 'Título', tipo: 'texto' },
                                 description: { titulo: 'Descrição', tipo: 'texto' },
                                 status: { titulo: 'Status', tipo: 'status' },
-                                assigned_users: { titulo: 'Atribuidos', tipo: 'array' },
-                                user: { titulo: 'Responsavel', tipo: 'obj' },
+                                assigned_users: { titulo: 'Atribuídos', tipo: 'array' },
+                                user: { titulo: 'Responsável', tipo: 'obj' },
                                 due_date: { titulo: 'Entrega', tipo: 'data' },
                             }"></table-component>
                     </template>
@@ -106,6 +116,9 @@
                                         <input class="form-check-input" type="checkbox" :id="'usuario_' + usuario.id"
                                             v-model="usuariosAtribuidos" :value="usuario.id">
                                         <label class="form-check-label" :for="'usuario_' + usuario.id">
+                                            <!-- <i  class="fa-solid fa-shield-halved"></i>  -->
+                                            <i v-if="usuario.role == 'admin'" class="fa-solid fa-shield-halved"></i>
+                                            <i v-else class="fa-solid fa-user"></i>
                                             {{ usuario.name }}
                                         </label>
                                     </div>
@@ -152,7 +165,7 @@
                 </input-container-component>
 
                 <input-container-component titulo="Status">
-                    <status-button-component :status="$store.state.status"></status-button-component>
+                    <status-button-component :status="$store.state.status.name"></status-button-component>
                 </input-container-component>
 
                 <input-container-component titulo="Responsável">
@@ -242,14 +255,15 @@
                 <status-button-input-component :status="$store.state.status"
                     :statusList="statusList"></status-button-input-component>
 
-                <div class="form-group mt-2 mb-2">
-                    <input-container-component titulo="Atribuir usuários" texto-ajuda="Selecione os usuários a serem atribuídos">
+                <div class="form-group mt-2 mb-2" v-if="userRole == 'admin'">
+                    <input-container-component titulo="Atribuir usuários"
+                        texto-ajuda="Selecione os usuários a serem atribuídos">
                         <select-users-component :users="usuarios"
                             :assignedUsersIds="$store.state.assignedUsersIds"></select-users-component>
                     </input-container-component>
                 </div>
 
-                <div class="form-group mb-2">
+                <div class="form-group mb-2" v-if="userRole == 'admin'">
                     <input-container-component titulo="Data de Entrega" id="dataEntrega" id-help="dataEntregaHelp"
                         texto-ajuda="quando dever ser entregue">
                         <input type="datetime-local" class="form-control" id="dataEntrega" v-model="formattedDueDate"
@@ -316,7 +330,8 @@ export default {
             dataEntrega: '',
             transacaoStatus: '',
             transacaoDetalhes: {},
-            busca: { title: '', description: '' },
+            busca: { title: '', description: '', status_id: '' },
+            userRole: '',
         }
     },
     methods: {
@@ -333,13 +348,11 @@ export default {
 
             axios.post(url, formData)
                 .then(response => {
-                    console.log(response)
                     this.$store.state.transacao.status = 'sucesso'
                     this.$store.state.transacao.mensagem = response.data.success.detail
                     this.carregarListaTasks()
                 })
                 .catch(errors => {
-                    console.log(errors)
                     this.$store.state.transacao.status = 'erro'
                     this.$store.state.transacao.mensagem = errors.response.data.error.detail
                 });
@@ -372,7 +385,7 @@ export default {
                         filtro += ";"
                     }
 
-                    filtro += chave + ":like:%" + this.busca[chave] + "%"
+                    filtro += chave + ":like:" + this.busca[chave]
                 }
             }
             if (filtro != '') {
@@ -392,10 +405,20 @@ export default {
         },
         carregarListaTasks() {
             let url = this.urlBase + '?' + this.urlPaginacao + this.urlFiltro;
-
+            console.log('Pesquisa: ', url)
             axios.get(url)
                 .then(response => {
                     this.tasks = response.data
+                })
+                .catch(errors => {
+                });
+
+        },
+        carregarUsuarioLogado() {
+            let url = 'http://127.0.0.1:8000/api/me';
+            axios.post(url)
+                .then(response => {
+                    this.userRole = response.data.success.detail.User.role
                 })
                 .catch(errors => {
                 });
@@ -464,6 +487,7 @@ export default {
         this.carregarListaTasks()
         this.carregarUsers()
         this.carregarStatus()
+        this.carregarUsuarioLogado()
     }
 
 }

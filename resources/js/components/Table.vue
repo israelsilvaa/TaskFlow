@@ -5,7 +5,7 @@
                 <tr>
                     <th scope="col" v-for="coluna, key in titulos" :key="key">{{ coluna.titulo }}</th>
                     <td v-if="visualizar.visivel || atualizar.visivel || remover.visivel" colspan="2"
-                        class="text-center w-auto">Ações</td>
+                        class="text-center w-auto"><strong>Ações</strong></td>
                 </tr>
             </thead>
             <tbody>
@@ -30,18 +30,17 @@
                             </span>
                         </td>
                     </template>
-                    <td v-if="visualizar.visivel || atualizar.visivel || remover.visivel">
-
-                        <button v-if="visualizar.visivel" class="btn btn-outline-primary btn-sm me-1"
-                            :data-bs-toggle="visualizar.dataBsToggle" :data-bs-target="visualizar.dataBsTarget"
+                    <td >
+                        <button  class="btn btn-outline-primary btn-sm me-1"
+                            data-bs-toggle="modal" :data-bs-target="visualizar.dataBsTarget"
                             @click="setStore(obj)"><i class="fa-solid fa-eye"></i></button>
 
-                        <button v-if="atualizar.visivel" class="btn btn-outline-warning btn-sm me-1"
-                            :data-bs-toggle="atualizar.dataBsToggle" :data-bs-target="atualizar.dataBsTarget"
+                        <button  class="btn btn-outline-warning btn-sm me-1"
+                            data-bs-toggle="modal" :data-bs-target="atualizar.dataBsTarget"
                             @click="setStore(obj)"><i class="fa-solid fa-pen-to-square"></i></button>
 
-                        <button v-if="remover.visivel" class="btn btn-outline-danger btn-sm"
-                            :data-bs-toggle="remover.dataBsToggle" :data-bs-target="remover.dataBsTarget"
+                        <button v-if="remover.userRole == 'admin'"  class="btn btn-outline-danger btn-sm"
+                            data-bs-toggle="modal" :data-bs-target="remover.dataBsTarget"
                             @click="setStore(obj)"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
@@ -70,7 +69,7 @@ export default {
             this.$store.state.assignedUsersIds = obj.assigned_users.map(user => user.id);
         }
     },
-    props: ['dados', 'titulos', 'visualizar', 'atualizar', 'remover'],
+    props: ['dados','titulos', 'visualizar', 'atualizar', 'remover'],
     computed: {
         dadosFiltrados() {
             let campos = Object.keys(this.titulos)

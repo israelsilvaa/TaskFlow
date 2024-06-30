@@ -74,6 +74,7 @@ import PaginateComponent from "./components/Paginate.vue";
 import StatusButtonComponent from "./components/StatusButtonComponent.vue";
 import StatusButtonInputComponent from "./components/StatusButtonInputComponent.vue";
 import SelectUsersComponent from "./components/SelectUsers.vue";
+import SelectStatusComponent from "./components/SelectStatus.vue";
 
 app.component("example-component", ExampleComponent);
 app.component("login-component", LoginComponent);
@@ -88,6 +89,7 @@ app.component("paginate-component", PaginateComponent);
 app.component("status-button-component", StatusButtonComponent);
 app.component("status-button-input-component", StatusButtonInputComponent);
 app.component("select-users-component", SelectUsersComponent);
+app.component("select-status-component", SelectStatusComponent);
 // app.component('table-component', TableComponent);
 
 /**

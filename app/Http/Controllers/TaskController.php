@@ -34,8 +34,16 @@ class TaskController extends Controller
         // Verifique o papel do usuário
         if ($user->role !== 'admin') {
             // Se não for admin, o usuário pode ver apenas tasks relacionadas
-            $taskQuery = $taskQuery->whereHas('assignedUsers', function ($query) use ($user) {
+            $taskQuery->whereHas('assignedUsers', function ($query) use ($user) {
                 $query->where('users.id', $user->id);
+            });
+        } else {
+            // Se for admin, pode ver todas as tasks que criou e as tasks relacionadas
+            $taskQuery->where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                    ->orWhereHas('assignedUsers', function ($subQuery) use ($user) {
+                        $subQuery->where('users.id', $user->id);
+                    });
             });
         }
 
@@ -62,7 +70,7 @@ class TaskController extends Controller
             $filtros = explode(';', $request->filtro);
             foreach ($filtros as $condicoes) {
                 $c = explode(':', $condicoes);
-                $taskQuery = $taskQuery->where($c[0], $c[1], $c[2]);
+                $taskQuery = $taskQuery->where($c[0], $c[1],  '%' . $c[2] . '%' );
             }
         }
 
@@ -208,36 +216,36 @@ class TaskController extends Controller
             }
 
 
-            if (gettype($request->usuariosAtribuidos) != "NULL" ) {
+            if (gettype($request->usuariosAtribuidos) != "NULL") {
                 // Obtém os IDs de usuários atribuídos do request e converte para array de inteiros
                 $atribuidos = explode(',', $request->usuariosAtribuidos);
                 $atribuidos = array_map('intval', $atribuidos);
-                
+
                 // Obtém os registros atuais na tabela task_assignments para a task em questão
                 $currentAssignments = TaskAssignments::where('task_id', $task->id)
-                ->pluck('user_id')
-                ->toArray(); // 
+                    ->pluck('user_id')
+                    ->toArray(); // 
                 $toRemove = array_diff($currentAssignments, $atribuidos);
-                
+
                 // // Remove os registros que estão na tabela mas não estão na lista de atribuídos
                 if (!empty($toRemove)) {
                     TaskAssignments::where('task_id', $task->id)
-                    ->whereIn('user_id', $toRemove)
-                    ->delete();
+                        ->whereIn('user_id', $toRemove)
+                        ->delete();
                 }
-                
+
                 // Adiciona novos registros para os atribuídos que não estão na tabela
                 $toAdd = array_diff($atribuidos, $currentAssignments);
                 foreach ($toAdd as $userId) {
-                        $taskAssignment = new TaskAssignments();
-                        $taskAssignment->task_id = $task->id;
-                        $taskAssignment->user_id = $userId;
-                        $taskAssignment->save();
-                    }
-                }else{
-                    TaskAssignments::where('task_id', $task->id)->delete();
+                    $taskAssignment = new TaskAssignments();
+                    $taskAssignment->task_id = $task->id;
+                    $taskAssignment->user_id = $userId;
+                    $taskAssignment->save();
                 }
-                
+            } else {
+                TaskAssignments::where('task_id', $task->id)->delete();
+            }
+
 
             // Tenta atualizar a tarefa
             if ($task->update($request->all())) {

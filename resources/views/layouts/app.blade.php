@@ -77,9 +77,9 @@
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     @if (Auth::user()->role == 'admin')
-                                        <i class="fa-solid fa-star" style="color: #FFD43B;"></i>
+                                        <i class="fa-solid fa-shield-halved" ></i>
                                     @else
-                                    <i class="fa-solid fa-user"></i>
+                                        <i class="fa-solid fa-user"></i>
                                     @endif
                                     {{ Auth::user()->name }}
                                 </a>
