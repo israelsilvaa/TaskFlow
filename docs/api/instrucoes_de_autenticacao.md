@@ -3,7 +3,7 @@
 
 ![POST](https://img.shields.io/badge/HTTP-POST-00CC00)  
 
-`/api/v/register` 
+`/api/register` 
 
 ## Parâmetros
 Deve receber uma requisição via POST com os names abaixo
@@ -53,7 +53,7 @@ Deve receber uma requisição via POST com os names abaixo
 
 ![POST](https://img.shields.io/badge/HTTP-POST-00CC00)  
 
-`/api/v/login` 
+`/api/login` 
 
 ## Parâmetros
 Deve receber uma requisição via POST com os names abaixo
@@ -105,7 +105,7 @@ Token com tempo de vida de 120 minutos
 
 ![POST](https://img.shields.io/badge/HTTP-POST-00CC00)  
 
-`/api/v/me` 
+`/api/me` 
 
 ## Parâmetros
 Deve receber uma requisição via POST com os names abaixo
@@ -158,7 +158,7 @@ Retorna dados do usuário que esta logado
 
 ![POST](https://img.shields.io/badge/HTTP-POST-00CC00)  
 
-`/api/v/refresh` 
+`/api/refresh` 
 
 ## Parâmetros
 Deve receber uma requisição via POST com os names abaixo
@@ -201,7 +201,7 @@ OBS: use somente uma refresh para cada Token, apos isso tem um tempo muito grade
 
 ![POST](https://img.shields.io/badge/HTTP-POST-00CC00)  
 
-`/api/v/logout` 
+`/api/logout` 
 
 ## Parâmetros
 Deve receber uma requisição via POST com os names abaixo

@@ -68,11 +68,11 @@ Esta API requer autenticação com JSON Web Token para acessar determinados endp
 
 - **Descrição**: Recurso de registro e login de usuário.
 - **Endpoints**:
-  - ![POST](https://img.shields.io/badge/HTTP-POST-00CC00)  [ /api/vregister](/docs/api/instrucoes_de_autenticacao.md)
-  - ![POST](https://img.shields.io/badge/HTTP-POST-00CC00)  [ /api/v/login](/docs/api/instrucoes_de_autenticacao.md)
-  - ![POST](https://img.shields.io/badge/HTTP-POST-00CC00)  [ /api/v/refresh](/docs/api/instrucoes_de_autenticacao.md)
-  - ![POST](https://img.shields.io/badge/HTTP-POST-00CC00)  [ /api/v/logout](/docs/api/instrucoes_de_autenticacao.md)
-  - ![POST](https://img.shields.io/badge/HTTP-POST-00CC00)  [ /api/v/me](/docs/api/instrucoes_de_autenticacao.md)
+  - ![POST](https://img.shields.io/badge/HTTP-POST-00CC00)  [ /api/register](/docs/api/instrucoes_de_autenticacao.md)
+  - ![POST](https://img.shields.io/badge/HTTP-POST-00CC00)  [ /api/login](/docs/api/instrucoes_de_autenticacao.md)
+  - ![POST](https://img.shields.io/badge/HTTP-POST-00CC00)  [ /api/refresh](/docs/api/instrucoes_de_autenticacao.md)
+  - ![POST](https://img.shields.io/badge/HTTP-POST-00CC00)  [ /api/logout](/docs/api/instrucoes_de_autenticacao.md)
+  - ![POST](https://img.shields.io/badge/HTTP-POST-00CC00)  [ /api/me](/docs/api/instrucoes_de_autenticacao.md)
 
 
 
