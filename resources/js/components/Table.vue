@@ -4,8 +4,7 @@
             <thead>
                 <tr>
                     <th scope="col" v-for="coluna, key in titulos" :key="key">{{ coluna.titulo }}</th>
-                    <td v-if="visualizar.visivel || atualizar.visivel || remover.visivel" colspan="2"
-                        class="text-center w-auto"><strong>Ações</strong></td>
+                    <td colspan="2" class="text-center w-auto"><strong>Ações</strong></td>
                 </tr>
             </thead>
             <tbody>
@@ -39,7 +38,7 @@
                             data-bs-toggle="modal" :data-bs-target="atualizar.dataBsTarget"
                             @click="setStore(obj)"><i class="fa-solid fa-pen-to-square"></i></button>
 
-                        <button v-if="remover.userRole == 'admin'"  class="btn btn-outline-danger btn-sm"
+                        <button v-if="remover.userLogged.id == obj.user.id"  class="btn btn-outline-danger btn-sm"
                             data-bs-toggle="modal" :data-bs-target="remover.dataBsTarget"
                             @click="setStore(obj)"><i class="fa-solid fa-trash"></i></button>
                     </td>
@@ -58,14 +57,13 @@
 export default {
     methods: {
         setStore(obj) {
-            this.$store.state.transacao.status = ''
-            this.$store.state.transacao.detalhes = ''
-
             this.$store.state.item = { ...obj };
+
+            this.$store.state.deletedTask = ''; // resetando botão de deletar no modal
             this.$store.state.user = obj.user.name.toString();
             this.$store.state.status = obj.status;
-            this.$store.state.relacionados = obj.assigned_users.map(user => user.name).join(', ');
-            this.$store.state.atribuidosObj = { ...obj.assigned_users };
+            this.$store.state.updateStatusId = 99;
+            this.$store.state.assignedUsersNames = obj.assigned_users.map(user => user.name).join(', '); // string 'israel,maria'
             this.$store.state.assignedUsersIds = obj.assigned_users.map(user => user.id);
         }
     },

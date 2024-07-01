@@ -75,7 +75,6 @@ axios.interceptors.response.use(
             axios
                 .post("http://localhost:8000/api/refresh")
                 .then((response) => {
-                    console.log("Refresh com sucesso: ", response.data.success.detail.Token);
 
                     document.cookie = "token=" + response.data.success.detail.Token + ';SameSite=Lax'
                     window.location.reload();

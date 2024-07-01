@@ -15,43 +15,37 @@ const store = createStore({
         item: {},
         user: {},
         status: "",
-        responsavel: {},
-        relacionados: "",
-        atribuidosObj: {data: []},
-        transacao: { status: "", mensagem: "", dado: "" },
-        due_date: getCurrentDateTimeCustomFormat(),
+        assignedUsersNames: "",
+        due_date: "",
+        
 
         // atualizar
+      
         assignedUsersIds: [],
-        updateStatusId: 1,
+        updateStatusId: 99,
+
+        //deletar
+        deletedTask: '',
     },
     mutations: {
         setDueDate(state, date) {
             state.item.due_date = date;
         },
-        setAtribuidosObj(state, atribuidos) {
-            state.atribuidosObj = atribuidos;
-        },
+
+        // atribuindo uaurios a uma task
         addUsuarioAtribuido(state, id) {
             if (!state.assignedUsersIds.includes(id)) {
                 state.assignedUsersIds.push(id);
             }
         },
         removeUsuarioAtribuido(state, id) {
-            state.assignedUsersIds = state.assignedUsersIds.filter(userId => userId !== id);
+            state.assignedUsersIds = state.assignedUsersIds.filter(
+                (userId) => userId !== id
+            );
         },
     },
 });
 
-function getCurrentDateTimeCustomFormat() {
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, "0");
-    const month = String(now.getMonth() + 1).padStart(2, "0"); // Os meses são baseados em zero
-    const year = now.getFullYear();
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    return `${day}-${month}-${year} ${hours}:${minutes}`;
-}
 
 /**
  * Next, we will create a fresh Vue application instance. You may then begin
@@ -63,6 +57,7 @@ const app = createApp({});
 
 import ExampleComponent from "./components/ExampleComponent.vue";
 import LoginComponent from "./components/Login.vue";
+import RegisterComponent from "./components/Register.vue";
 import HomeComponent from "./components/Home.vue";
 import TasksComponent from "./components/Tasks.vue";
 import CardComponent from "./components/Card.vue";
@@ -78,6 +73,7 @@ import SelectStatusComponent from "./components/SelectStatus.vue";
 
 app.component("example-component", ExampleComponent);
 app.component("login-component", LoginComponent);
+app.component("register-component", RegisterComponent);
 app.component("home-component", HomeComponent);
 app.component("tasks-component", TasksComponent);
 app.component("card-component", CardComponent);
@@ -90,7 +86,6 @@ app.component("status-button-component", StatusButtonComponent);
 app.component("status-button-input-component", StatusButtonInputComponent);
 app.component("select-users-component", SelectUsersComponent);
 app.component("select-status-component", SelectStatusComponent);
-// app.component('table-component', TableComponent);
 
 /**
  * The following block of code may be used to automatically register your

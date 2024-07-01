@@ -1,7 +1,8 @@
 <template>
     <div class="container">
+
         <div class="row justify-content-center">
-            <div class="col-md-10">
+            <div class="col-10">
                 <!-- Inicio do card de BUSCCA -->
                 <card-component titulo="Busca de Tasks">
                     <template v-slot:conteudo>
@@ -39,7 +40,7 @@
                     </template>
                     <template v-slot:rodape>
                         <div class="">
-                            <button type="submit" class="btn btn-primary btn-sm" @click="pesquisar()"><i
+                            <button type="submit" class="btn btn-primary btn-sm" @click="searchTasks()"><i
                                     class="fa-solid fa-magnifying-glass"></i> Pesquisar</button>
                         </div>
                     </template>
@@ -50,9 +51,9 @@
                 <card-component titulo="Relação de Tasks">
                     <template v-slot:conteudo>
                         <table-component :dados="tasks.data"
-                            :visualizar="{ userRole: userRole, dataBsTarget: '#modalTaskVisualizar' }"
-                            :atualizar="{ userRole: userRole, dataBsTarget: '#modalTaskAtualizar' }"
-                            :remover="{ userRole: userRole, dataBsTarget: '#modalTaskRemover' }" :titulos="{
+                            :visualizar="{ userLogged: userLogged, dataBsTarget: '#modalTaskVisualizar' }"
+                            :atualizar="{ userLogged: userLogged, dataBsTarget: '#modalTaskAtualizar' }"
+                            :remover="{ userLogged: userLogged, dataBsTarget: '#modalTaskRemover' }" :titulos="{
                                 id: { titulo: 'ID', tipo: 'texto' },
                                 title: { titulo: 'Título', tipo: 'texto' },
                                 description: { titulo: 'Descrição', tipo: 'texto' },
@@ -64,7 +65,8 @@
                     </template>
                     <template v-slot:rodape>
                         <paginate-component>
-                            <li v-for="link, key in tasks.links" :key="key" class="page-item" @click="paginacao(link)">
+                            <li v-for="link, key in tasks.links" :key="key" class="page-item"
+                                @click="paginateTasks(link)">
                                 <a :class="link.active ? 'page-link active' : 'page-link'" v-html="link.label"></a>
                             </li>
                         </paginate-component>
@@ -74,212 +76,211 @@
                 <!-- Fim do card de LISTAGEM de tasks -->
             </div>
         </div>
-
-        <!-- Inicio Modal de CRIAÇÃO de tasks -->
-        <modal-component id="modalTask" titulo="Adicionar task">
-            <template v-slot:alertas>
-                <alert-component tipo="success" :detalhes="transacaoDetalhes" titulo="Cadastro realizado com sucesso"
-                    v-if="transacaoStatus == 'adicionado'"></alert-component>
-                <alert-component tipo="danger" :detalhes="transacaoDetalhes" titulo="Erro ao tentar cadastrar a task"
-                    v-if="transacaoStatus == 'erro'"></alert-component>
-            </template>
-
-            <template v-slot:conteudo>
-                <div class="form-group">
-                    <input-container-component titulo="Titulo" id="novaTask" id-help="novaTaskHelp"
-                        texto-ajuda="Informe o Titulo da task">
-                        <input type="text" class="form-control" id="novaTask" placeholder="Backup dataBase"
-                            v-model="titulo" aria-describedby="novaTaskHelp">
-                    </input-container-component>
-                </div>
-
-                <div class="form-group">
-                    <input-container-component titulo="Descrição" id="novaDescricao" id-help="novaDescricaoHelp"
-                        texto-ajuda="O que deve ser feito e outras observações">
-                        <input type="text" class="form-control" id="novaDescricao"
-                            placeholder="baixar base da produção e salvar no driver" v-model="descricao"
-                            aria-describedby="novaDescricaoHelp">
-                    </input-container-component>
-                </div>
-
-                <div class="form-group">
-                    <input-container-component titulo="Atribuir usuários" id="usuariosAtribuidos"
-                        id-help="usuariosAtribuidosHelp" texto-ajuda="Selecione os usuários a serem atribuídos">
-                        <div class="dropdown">
-                            <button class="btn border border-secondary dropdown-toggle" type="button"
-                                id="dropdownUsuarios" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-user-plus" style="color: #039e00;"></i> Selecionar usuários
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownUsuarios">
-                                <li v-for="usuario in usuarios" :key="usuario.id">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" :id="'usuario_' + usuario.id"
-                                            v-model="usuariosAtribuidos" :value="usuario.id">
-                                        <label class="form-check-label" :for="'usuario_' + usuario.id">
-                                            <!-- <i  class="fa-solid fa-shield-halved"></i>  -->
-                                            <i v-if="usuario.role == 'admin'" class="fa-solid fa-shield-halved"></i>
-                                            <i v-else class="fa-solid fa-user"></i>
-                                            {{ usuario.name }}
-                                        </label>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </input-container-component>
-                </div>
-
-                <div class="form-group">
-                    <input-container-component titulo="Data de Entrega" id="dataEntrega" id-help="dataEntregaHelp"
-                        texto-ajuda="Quando dever ser entregue">
-                        <input type="datetime-local" class="form-control" id="dataEntrega" v-model="dataEntrega"
-                            aria-describedby="dataEntregaHelp">
-                    </input-container-component>
-                </div>
-            </template>
-
-            <template v-slot:rodape>
-                <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-primary" @click="salvar()">Salvar</button>
-            </template>
-        </modal-component>
-        <!-- Fim Modal de CRIAÇÃO de tasks -->
-
-        <!-- Inicio Modal de VISUALIZAÇÃO de tasks -->
-        <modal-component id="modalTaskVisualizar" titulo="Visualização de task">
-            <template v-slot:alertas>
-            </template>
-
-            <template v-slot:conteudo>
-
-                <input-container-component titulo="ID">
-                    <input type="text" class="form-control" :value="$store.state.item.id" disabled>
-                </input-container-component>
-
-                <input-container-component titulo="Titulo">
-                    <input type="text" class="form-control" :value="$store.state.item.title" disabled>
-                </input-container-component>
-
-                <input-container-component titulo="Descrição">
-                    <textarea name="" id="" cols="30" class="form-control" rows="3"
-                        disabled> {{ $store.state.item.description }} </textarea>
-                </input-container-component>
-
-                <input-container-component titulo="Status">
-                    <status-button-component :status="$store.state.status.name"></status-button-component>
-                </input-container-component>
-
-                <input-container-component titulo="Responsável">
-                    <input type="text" class="form-control" :value="$store.state.user" disabled>
-                </input-container-component>
-
-                <input-container-component titulo="Usuarios atribuidos">
-                    <input type="text" class="form-control" :value="$store.state.relacionados" disabled>
-                </input-container-component>
-
-                <input-container-component titulo="Entrega">
-                    <input type="text" class="form-control" :value="$store.state.item.due_date" disabled>
-                </input-container-component>
-            </template>
-
-            <template v-slot:rodape>
-                <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
-            </template>
-        </modal-component>
-        <!-- Fim Modal de VISUALIZAÇÃO de tasks -->
-
-        <!-- Inicio Modal de REMOÇÃO de tasks -->
-        <modal-component id="modalTaskRemover" titulo="Remoção de task">
-            <template v-slot:alertas>
-                <alert-component tipo="success" titulo="Transação realizada com sucesso"
-                    :detalhes="$store.state.transacao"
-                    v-if="$store.state.transacao.status == 'sucesso'"></alert-component>
-                <alert-component tipo="danger" titulo="Erro na transação" :detalhes="$store.state.transacao"
-                    v-if="$store.state.transacao.status == 'erro'"></alert-component>
-            </template>
-
-            <template v-slot:conteudo v-if="$store.state.transacao.status != 'sucesso'">
-                <input-container-component titulo="ID">
-                    <input type="text" class="form-control" :value="$store.state.item.id" disabled>
-                </input-container-component>
-
-                <input-container-component titulo="Titulo">
-                    <input type="text" class="form-control" :value="$store.state.item.title" disabled>
-                </input-container-component>
-
-                <input-container-component titulo="Descrição">
-                    <textarea name="" id="" cols="30" class="form-control" rows="3"
-                        disabled> {{ $store.state.item.description }} </textarea>
-                </input-container-component>
-
-                <input-container-component titulo="Status">
-                    <input type="text" class="form-control" :value="$store.state.item.status" disabled>
-                </input-container-component>
-            </template>
-
-            <template v-slot:rodape>
-                <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-danger m-1" @click="remover()"
-                    v-if="$store.state.transacao.status != 'sucesso'">Remover</button>
-            </template>
-        </modal-component>
-        <!-- Fim Modal de REMOÇÃO de tasks -->
-
-        <!-- Inicio Modal de ATUALIZAÇÃO de tasks -->
-        <modal-component id="modalTaskAtualizar" titulo="Atualização de task">
-            <template v-slot:alertas>
-                <alert-component tipo="success" titulo="Transação realizada com sucesso"
-                    :detalhes="$store.state.transacao"
-                    v-if="$store.state.transacao.status == 'sucesso'"></alert-component>
-                <alert-component tipo="danger" titulo="Erro na transação" :detalhes="$store.state.transacao"
-                    v-if="$store.state.transacao.status == 'erro'"></alert-component>
-            </template>
-
-            <template v-slot:conteudo>
-                <div class="form-group mb-2">
-                    <input-container-component titulo="Titulo" id="atualizarNovoTitulo"
-                        id-help="atualizarNovoTituloHelp" texto-ajuda="Informe o Titulo da task">
-                        <input type="text" class="form-control" id="novoTitle" placeholder="Backup dataBase"
-                            v-model="$store.state.item.title" aria-describedby="atualizarNovoTituloHelp">
-                    </input-container-component>
-                </div>
-
-                <div class="form-group mb-2">
-                    <input-container-component titulo="Descrição" id="atualizarNovoDescricao"
-                        id-help="atualizarNovoDescricaoHelp" texto-ajuda="O que deve ser feito e outras observações">
-                        <input type="text" class="form-control" id="novoDescription"
-                            placeholder="O que deve ser feito e outras observações"
-                            v-model="$store.state.item.description" aria-describedby="atualizarNovoDescricaoHelp">
-                    </input-container-component>
-                </div>
-
-                <status-button-input-component :status="$store.state.status"
-                    :statusList="statusList"></status-button-input-component>
-
-                <div class="form-group mt-2 mb-2" v-if="userRole == 'admin'">
-                    <input-container-component titulo="Atribuir usuários"
-                        texto-ajuda="Selecione os usuários a serem atribuídos">
-                        <select-users-component :users="usuarios"
-                            :assignedUsersIds="$store.state.assignedUsersIds"></select-users-component>
-                    </input-container-component>
-                </div>
-
-                <div class="form-group mb-2" v-if="userRole == 'admin'">
-                    <input-container-component titulo="Data de Entrega" id="dataEntrega" id-help="dataEntregaHelp"
-                        texto-ajuda="quando dever ser entregue">
-                        <input type="datetime-local" class="form-control" id="dataEntrega" v-model="formattedDueDate"
-                            aria-describedby="dataEntregaHelp">
-                    </input-container-component>
-                </div>
-            </template>
-
-            <template v-slot:rodape>
-                <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-warning" @click="atualizar()">Atualizar</button>
-            </template>
-        </modal-component>
-        <!-- Fim Modal de ATUALIZAÇÃO de tasks -->
-
     </div>
+
+    <!-- Inicio Modal de CRIAÇÃO de tasks -->
+    <modal-component id="modalTask" titulo="Adicionar task">
+        <template v-slot:alertas>
+            <alert-component tipo="success" :detalhes="this.newTaskRequest" titulo="Transação realizada com sucesso"
+                v-if="this.newTaskRequest.status == 'success'"></alert-component>
+            <alert-component tipo="danger" :detalhes="this.newTaskRequest" titulo="Erro na Transação"
+                v-if="this.newTaskRequest.status == 'erro'"></alert-component>
+        </template>
+
+        <template v-slot:conteudo>
+            <div class="form-group">
+                <input-container-component titulo="Titulo" id="novaTask" id-help="novaTaskHelp"
+                    texto-ajuda="Informe o Titulo da task">
+                    <input type="text" class="form-control" id="novaTask" placeholder="Backup dataBase"
+                        v-model="this.newTaskRequest.titulo" aria-describedby="novaTaskHelp">
+                </input-container-component>
+            </div>
+
+            <div class="form-group">
+                <input-container-component titulo="Descrição" id="novaDescricao" id-help="novaDescricaoHelp"
+                    texto-ajuda="O que deve ser feito e outras observações">
+                    <input type="text" class="form-control" id="novaDescricao"
+                        placeholder="baixar base da produção e salvar no driver" v-model="this.newTaskRequest.descricao"
+                        aria-describedby="novaDescricaoHelp">
+                </input-container-component>
+            </div>
+
+            <div class="form-group">
+                <input-container-component titulo="Atribuir usuários" id="usuariosAtribuidos"
+                    id-help="usuariosAtribuidosHelp" texto-ajuda="Selecione os usuários a serem atribuídos">
+                    <div class="dropdown">
+                        <button class="btn border border-secondary dropdown-toggle" type="button" id="dropdownUsuarios"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-user-plus" style="color: #039e00;"></i> Selecionar usuários
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownUsuarios">
+                            <li v-for="usuario in usuarios" :key="usuario.id">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" :id="'usuario_' + usuario.id"
+                                        v-model="this.newTaskRequest.usuariosAtribuidos" :value="usuario.id">
+                                    <label class="form-check-label" :for="'usuario_' + usuario.id">
+                                        <!-- <i  class="fa-solid fa-shield-halved"></i>  -->
+                                        <i v-if="usuario.role == 'admin'" class="fa-solid fa-shield-halved"></i>
+                                        <i v-else class="fa-solid fa-user"></i>
+                                        {{ usuario.name }}
+                                    </label>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </input-container-component>
+            </div>
+
+            <div class="form-group">
+                <input-container-component titulo="Data de Entrega" id="dataEntrega" id-help="dataEntregaHelp"
+                    texto-ajuda="Quando dever ser entregue">
+                    <input type="datetime-local" class="form-control" id="dataEntrega"
+                        v-model="this.newTaskRequest.dataEntrega" aria-describedby="dataEntregaHelp">
+                </input-container-component>
+            </div>
+        </template>
+
+        <template v-slot:rodape>
+            <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
+            <button type="button" class="btn btn-primary" @click="saveTask()">Salvar</button>
+        </template>
+    </modal-component>
+    <!-- Fim Modal de CRIAÇÃO de tasks -->
+
+    <!-- Inicio Modal de VISUALIZAÇÃO de tasks -->
+    <modal-component id="modalTaskVisualizar" titulo="Visualização de task">
+        <template v-slot:alertas>
+        </template>
+
+        <template v-slot:conteudo>
+
+            <input-container-component titulo="ID">
+                <input type="text" class="form-control" :value="$store.state.item.id" disabled>
+            </input-container-component>
+
+            <input-container-component titulo="Titulo">
+                <input type="text" class="form-control" :value="$store.state.item.title" disabled>
+            </input-container-component>
+
+            <input-container-component titulo="Descrição">
+                <textarea name="" id="" cols="30" class="form-control" rows="3"
+                    disabled> {{ $store.state.item.description }} </textarea>
+            </input-container-component>
+
+            <input-container-component titulo="Status">
+                <status-button-component :status="$store.state.status.name"></status-button-component>
+            </input-container-component>
+
+            <input-container-component titulo="Responsável">
+                <input type="text" class="form-control" :value="$store.state.user" disabled>
+            </input-container-component>
+
+            <input-container-component titulo="Usuarios atribuidos">
+                <input type="text" class="form-control" :value="$store.state.assignedUsersNames" disabled>
+            </input-container-component>
+
+            <input-container-component titulo="Entrega">
+                <input type="text" class="form-control" :value="$store.state.item.due_date" disabled>
+            </input-container-component>
+        </template>
+
+        <template v-slot:rodape>
+            <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
+        </template>
+    </modal-component>
+    <!-- Fim Modal de VISUALIZAÇÃO de tasks -->
+
+    <!-- Inicio Modal de REMOÇÃO de tasks -->
+    <modal-component id="modalTaskRemover" titulo="Remoção de task">
+        <template v-slot:alertas>
+            <alert-component tipo="success" :detalhes="this.newTaskRequest" titulo="Transação realizada com sucesso"
+                v-if="this.newTaskRequest.status == 'success'"></alert-component>
+            <alert-component tipo="danger" :detalhes="this.newTaskRequest" titulo="Erro na Transação"
+                v-if="this.newTaskRequest.status == 'erro'"></alert-component>
+        </template>
+
+        <template v-slot:conteudo >
+            <input-container-component titulo="ID">
+                <input type="text" class="form-control" :value="$store.state.item.id" disabled>
+            </input-container-component>
+
+            <input-container-component titulo="Titulo">
+                <input type="text" class="form-control" :value="$store.state.item.title" disabled>
+            </input-container-component>
+
+            <input-container-component titulo="Descrição">
+                <textarea name="" id="" cols="30" class="form-control" rows="3"
+                    disabled> {{ $store.state.item.description }} </textarea>
+            </input-container-component>
+
+            <input-container-component titulo="Status" v-if="isUserLoggedIn">
+                <status-button-component :status="$store.state.item.status.name"></status-button-component>
+            </input-container-component>
+        </template>
+
+        <template v-slot:rodape>
+            <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
+            <button type="button" class="btn btn-danger m-1" @click="deleteTask()" v-if="this.$store.state.deletedTask  != 'deletado' "
+            >Remover</button>
+            {{ this.$store.state.deletedTask  }}
+        </template>
+    </modal-component>
+    <!-- Fim Modal de REMOÇÃO de tasks -->
+
+    <!-- Inicio Modal de ATUALIZAÇÃO de tasks -->
+    <modal-component id="modalTaskAtualizar" titulo="Atualização de task">
+        <template v-slot:alertas>
+            <alert-component tipo="success" :detalhes="this.newTaskRequest" titulo="Transação realizada com sucesso"
+                v-if="this.newTaskRequest.status == 'success'"></alert-component>
+            <alert-component tipo="danger" :detalhes="this.newTaskRequest" titulo="Erro na Transação"
+                v-if="this.newTaskRequest.status == 'erro'"></alert-component>
+        </template>
+
+        <template v-slot:conteudo>
+            <div class="form-group mb-2">
+                <input-container-component titulo="Titulo" id="atualizarNovoTitulo" id-help="atualizarNovoTituloHelp"
+                    texto-ajuda="Informe o Titulo da task">
+                    <input type="text" class="form-control" id="novoTitle" placeholder="Backup dataBase"
+                        v-model="$store.state.item.title" aria-describedby="atualizarNovoTituloHelp">
+                </input-container-component>
+            </div>
+
+            <div class="form-group mb-2">
+                <input-container-component titulo="Descrição" id="atualizarNovoDescricao"
+                    id-help="atualizarNovoDescricaoHelp" texto-ajuda="O que deve ser feito e outras observações">
+                    <input type="text" class="form-control" id="novoDescription"
+                        placeholder="O que deve ser feito e outras observações" v-model="$store.state.item.description"
+                        aria-describedby="atualizarNovoDescricaoHelp">
+                </input-container-component>
+            </div>
+
+            <status-button-input-component :statusStore="$store.state.status"
+                :statusList="statusList"></status-button-input-component>
+
+            <div class="form-group mt-2 mb-2" v-if="isUserLoggedIn">
+                <input-container-component titulo="Atribuir usuários"
+                    texto-ajuda="Selecione os usuários a serem atribuídos">
+                    <select-users-component :users="usuarios"
+                        :assignedUsersIds="$store.state.assignedUsersIds"></select-users-component>
+                </input-container-component>
+            </div>
+
+            <div class="form-group mb-2" v-if="isUserLoggedIn">
+                <input-container-component titulo="Data de Entrega" id="dataEntrega" id-help="dataEntregaHelp"
+                    texto-ajuda="quando dever ser entregue">
+                    <input type="datetime-local" class="form-control" id="dataEntrega" v-model="formattedDueDate"
+                        aria-describedby="dataEntregaHelp">
+                </input-container-component>
+            </div>
+        </template>
+
+        <template v-slot:rodape>
+            <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
+            <button type="button" class="btn btn-warning" @click="updateTask()">Atualizar</button>
+        </template>
+    </modal-component>
+    <!-- Fim Modal de ATUALIZAÇÃO de tasks -->
+
 </template>
 
 <script>
@@ -314,50 +315,106 @@ export default {
                 const [year, month, day] = date.split('-');
                 this.$store.commit('setDueDate', `${day}-${month}-${year} ${time}`);
             }
+        },
+        isUserLoggedIn() {
+            return this.$store.state.item && this.$store.state.item.user && this.userLogged.id == this.$store.state.item.user.id;
         }
     },
     data() {
         return {
+            // busca
             urlBase: 'http://localhost:8000/api/v1/task',
             urlPaginacao: '',
             urlFiltro: '',
-            tasks: { data: [] }, // definido como vazio, aguardar a requisição de tasks terminar: carregarListaTasks()
-            titulo: '',
-            descricao: '',
-            usuariosAtribuidos: [],
-            usuarios: { data: [] },
+            busca: { title: '', description: '', status_id: '' },
+
+            // visualizar 
+            tasks: { data: [] }, // definido como vazio, aguardar a requisição de tasks terminar: loadTaskList()
             statusList: {},
-            dataEntrega: '',
+            usuarios: { data: [] },
+
+            // atualizar/criar
+            newTaskRequest: {
+                status: "",
+                mensagem: "",
+                titulo: "",
+                descricao: "",
+                usuariosAtribuidos: "",
+                dataEntrega: "",
+            },
             transacaoStatus: '',
             transacaoDetalhes: {},
-            busca: { title: '', description: '', status_id: '' },
-            userRole: '',
+
+            // permissão botão: atualizar/remover
+            userLogged: '',
         }
     },
     methods: {
-        atualizar() {
+        saveTask() {
+            let formData = new FormData();
+            formData.append('title', this.newTaskRequest.titulo);
+            formData.append('description', this.newTaskRequest.descricao);
+            formData.append('usuariosAtribuidos', JSON.stringify(this.usuariosAtribuidos)); // Converte para string JSON
+            let dataEntrega = new Date(this.newTaskRequest.dataEntrega).toISOString().slice(0, 19).replace('T', ' ');
+            formData.append('due_date', dataEntrega);
+
+            // Recupera a resposta/erros de forma assíncrona
+            axios.post(this.urlBase, formData)
+                .then(response => {
+                    this.newTaskRequest.status = 'success'
+                    this.newTaskRequest.mensagem = response.data.success.detail
+                    this.newTaskRequest.dados = ''
+                    setTimeout(() => {
+                        this.newTaskRequest = {}
+                    }, 2500);
+                })
+                .catch(errors => {
+                    this.newTaskRequest.status = 'erro'
+                    this.newTaskRequest.mensagem = errors.response.data.error.detail
+                    this.newTaskRequest.dados = errors.response.data.error.detail
+                    setTimeout(() => {
+                        this.newTaskRequest.status = ''
+                    }, 2500);
+                });
+            this.loadTaskList()
+        },
+        updateTask() {
             let url = this.urlBase + '/' + this.$store.state.item.id
             let formData = new FormData();
 
             formData.append('_method', 'patch')
             formData.append('title', this.$store.state.item.title)
             formData.append('description', this.$store.state.item.description)
-            formData.append('status_id', this.$store.state.updateStatusId)
+            if (this.$store.state.updateStatusId == 99) {
+                formData.append('status_id', this.$store.state.status.id)
+            } else {
+                formData.append('status_id', this.$store.state.updateStatusId)
+            }
             formData.append('usuariosAtribuidos', this.$store.state.assignedUsersIds); // Converte para string JSON            
             formData.append('due_date', this.formattedDueDate)
 
             axios.post(url, formData)
                 .then(response => {
-                    this.$store.state.transacao.status = 'sucesso'
-                    this.$store.state.transacao.mensagem = response.data.success.detail
-                    this.carregarListaTasks()
+                    this.newTaskRequest.status = 'success'
+                    this.newTaskRequest.mensagem = response.data.success.detail
+                    this.newTaskRequest.dados = ''
+                    setTimeout(() => {
+                        this.newTaskRequest = {}
+                    }, 5000);
                 })
                 .catch(errors => {
-                    this.$store.state.transacao.status = 'erro'
-                    this.$store.state.transacao.mensagem = errors.response.data.error.detail
+                    this.newTaskRequest.status = 'erro'
+                    this.newTaskRequest.mensagem = errors.response.data.error.detail
+                    this.newTaskRequest.dados = errors.response.data.error.detail
+                    setTimeout(() => {
+                        this.newTaskRequest.status = ''
+                    }, 5000);
                 });
+
+            this.loadTaskList()
+
         },
-        remover() {
+        deleteTask() {
             let confirmacao = confirm('Tem certeza que deseja remover essa task?')
             if (!confirmacao) return false;
 
@@ -368,16 +425,26 @@ export default {
 
             axios.post(url, formData)
                 .then(response => {
-                    this.$store.state.transacao.status = 'sucesso'
-                    this.$store.state.transacao.mensagem = response.data.success.detail
+                    this.newTaskRequest.status = 'success'
+                    this.newTaskRequest.mensagem = response.data.success.detail
+                    this.newTaskRequest.dados = ''
+
+                    setTimeout(() => {
+                        this.newTaskRequest.status = ''
+                    }, 2500);
+                    this.$store.state.deletedTask  = 'deletado';
                 })
                 .catch(errors => {
-                    this.$store.state.transacao.status = 'erro'
-                    this.$store.state.transacao.mensagem = errors.response.data.error.detail
+                    this.newTaskRequest.status = 'erro'
+                    this.newTaskRequest.mensagem = errors.response.data.error.detail
+                    this.newTaskRequest.dados = errors.response.data.error.detail
+                    setTimeout(() => {
+                        this.newTaskRequest.status = ''
+                    }, 2500);
                 });
-            this.carregarListaTasks()
+            this.loadTaskList()
         },
-        pesquisar() {
+        searchTasks() {
             let filtro = ''
             for (let chave in this.busca) {
                 if (this.busca[chave]) {
@@ -394,18 +461,17 @@ export default {
             } else {
                 this.urlFiltro = ''
             }
-            this.carregarListaTasks() // carrega lista com filtros de pesquisa atualizados
+            this.loadTaskList() // carrega lista com filtros de pesquisa atualizados
         },
-        paginacao(link) {
+        paginateTasks(link) {
             if (link.url) {
                 // this.urlBase = link.url // ajustar parametro de consulta com parametro da pagina
                 this.urlPaginacao = link.url.split('?')[1]
-                this.carregarListaTasks() // requisita dados para API, da pagina desejada 
+                this.loadTaskList() // requisita dados para API, da pagina desejada 
             }
         },
-        carregarListaTasks() {
+        loadTaskList() {
             let url = this.urlBase + '?' + this.urlPaginacao + this.urlFiltro;
-            console.log('Pesquisa: ', url)
             axios.get(url)
                 .then(response => {
                     this.tasks = response.data
@@ -414,16 +480,16 @@ export default {
                 });
 
         },
-        carregarUsuarioLogado() {
+        loadLoggedInUser() {
             let url = 'http://127.0.0.1:8000/api/me';
             axios.post(url)
                 .then(response => {
-                    this.userRole = response.data.success.detail.User.role
+                    this.userLogged = response.data.success.detail.User
                 })
                 .catch(errors => {
                 });
         },
-        carregarUsers() {
+        loadUsers() {
             let url = 'http://localhost:8000/api/v1/users'
 
             axios.get(url)
@@ -433,7 +499,7 @@ export default {
                 .catch(errors => {
                 });
         },
-        carregarStatus() {
+        loadStatuses() {
             let url = 'http://localhost:8000/api/v1/status'
 
             axios.get(url)
@@ -443,51 +509,13 @@ export default {
                 .catch(errors => {
                 });
         },
-        salvar() {
-            let formData = new FormData();
-            formData.append('title', this.titulo);
-            formData.append('description', this.descricao);
-            formData.append('usuariosAtribuidos', JSON.stringify(this.usuariosAtribuidos)); // Converte para string JSON
-            // Converte para formato `YYYY-MM-DD HH:MM:SS`
-            let dataEntrega = new Date(this.dataEntrega).toISOString().slice(0, 19).replace('T', ' ');
-            formData.append('due_date', dataEntrega);
 
-            // Recupera a resposta/erros de forma assíncrona
-            axios.post(this.urlBase, formData)
-                .then(response => {
-                    this.transacaoStatus = 'adicionado';
-                    this.transacaoDetalhes = {
-                        mensagem: 'ID do registro: ' + response.data.success.detail.id
-                    };
-                })
-                .catch(errors => {
-
-                    this.transacaoStatus = 'erro';
-                    if (errors.response && errors.response.data) {
-                        if (errors.response.data.error) {
-                            // Caso 1: Formato com 'error'
-                            this.transacaoDetalhes = {
-                                mensagem: errors.response.data.error.title,
-                                dados: errors.response.data.error.detail
-                            };
-                        } else if (errors.response.data.message) {
-                            // Caso 2: Formato com 'message'
-                            this.transacaoDetalhes = {
-                                mensagem: errors.response.data.message,
-                                // dados: errors.response.data.errors
-                            };
-                        }
-                    }
-                });
-
-            this.carregarListaTasks()
-        }
     },
     mounted() {
-        this.carregarListaTasks()
-        this.carregarUsers()
-        this.carregarStatus()
-        this.carregarUsuarioLogado()
+        this.loadTaskList()
+        this.loadUsers()
+        this.loadStatuses()
+        this.loadLoggedInUser()
     }
 
 }

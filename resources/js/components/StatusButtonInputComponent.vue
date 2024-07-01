@@ -5,7 +5,7 @@
         <div v-for="statusItem in statusList":key="statusItem.id"
         class="btn-group" role="group" aria-label="Basic radio toggle button group">
             <input type="radio" class="btn-check" name="btnradio"
-            :id="'btnradio'+statusItem.id" autocomplete="off" :checked="status.id === statusItem.id" @change="handleStatusChange(statusItem.id)">
+            :id="'btnradio'+statusItem.id" autocomplete="off" :checked="statusStore.id === statusItem.id" @change="handleStatusChange(statusItem.id)">
 
             <label
             :class="'btn btn-outline-'+statusItem.classe" :for="'btnradio'+statusItem.id">{{ statusItem.name }}</label>
@@ -15,7 +15,7 @@
 
 <script>
 export default {
-    props: ['status', 'statusList'],
+    props: ['statusStore', 'statusList'],
     methods:{
         handleStatusChange(id){
             this.$store.state.updateStatusId = id
