@@ -333,7 +333,7 @@ export default {
                 usuariosAtribuidos: "",
                 dataEntrega: "",
             },
-            
+
             // permissão botão: atualizar/remover
             userLogged: '',
         }
@@ -392,6 +392,7 @@ export default {
                     this.newTaskRequest.status = 'success'
                     this.newTaskRequest.mensagem = response.data.success.detail
                     this.newTaskRequest.dados = ''
+                    this.loadTaskList()
                     setTimeout(() => {
                         this.newTaskRequest = {}
                     }, 3000);
@@ -405,7 +406,6 @@ export default {
                     }, 3000);
                 });
 
-            this.loadTaskList()
 
         },
         deleteTask() {
