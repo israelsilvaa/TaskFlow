@@ -3,8 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\StatusController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\StatusController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,7 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['prefix' => 'v1/'], function () {
 
     Route::apiResource('task', TaskController::class)->middleware('jwt.auth');
-    Route::get('users', [TaskController::class, 'usersAll'])->middleware('jwt.auth');
+    Route::get('users', [UserController::class, 'usersAll'])->middleware('jwt.auth');
     Route::get('status', [StatusController::class, 'index']);
     
 });

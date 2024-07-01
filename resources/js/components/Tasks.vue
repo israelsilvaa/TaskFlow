@@ -1,6 +1,6 @@
 <template>
     <div class="row justify-content-center">
-        <div class="col-12">
+        <div class="col-10">
             <!-- Inicio do card de BUSCCA -->
             <card-component titulo="Busca de Tasks">
                 <template v-slot:conteudo>

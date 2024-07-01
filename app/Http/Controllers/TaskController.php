@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\Task;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Requests\StoreTaskRequest;
@@ -77,33 +76,6 @@ class TaskController extends Controller
         $tasks = $taskQuery->paginate(10);
 
         return response()->json($tasks, 201);
-    }
-
-
-    /**
-     * Display a listing of users.
-     */
-    public function usersAll()
-    {
-        try {
-            $user = JWTAuth::parseToken()->authenticate();
-            $users = User::where('id', '!=', $user->id)->get();
-
-            return response()->json([
-                "success" => [
-                    "status" => "201", "title" => "Created", "detail" => $users
-                ]
-            ], 201);
-        } catch (Exception $e) {
-
-            return response()->json([
-                "error" => [
-                    "status" => "500",
-                    "title" => "Internal Server Error",
-                    "detail" => $e->getMessage(),
-                ]
-            ], 500);
-        }
     }
 
     /**
@@ -205,7 +177,6 @@ class TaskController extends Controller
             $isRelatedUser = $task->assignedUsers->contains('id', $user->id);
             if ($task->user_id !== $user->id && !$isRelatedUser) {
 
-
                 return response()->json([
                     "error" => [
                         "status" => "403",
@@ -214,7 +185,6 @@ class TaskController extends Controller
                     ]
                 ], 403);
             }
-
 
             if (gettype($request->usuariosAtribuidos) != "NULL") {
                 // Obtém os IDs de usuários atribuídos do request e converte para array de inteiros

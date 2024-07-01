@@ -4,8 +4,7 @@
             <thead>
                 <tr>
                     <th scope="col" v-for="coluna, key in titulos" :key="key">{{ coluna.titulo }}</th>
-                    <td v-if="visualizar.visivel || atualizar.visivel || remover.visivel" colspan="2"
-                        class="text-center w-auto"><strong>Ações</strong></td>
+                    <td colspan="2" class="text-center w-auto"><strong>Ações</strong></td>
                 </tr>
             </thead>
             <tbody>
