@@ -303,7 +303,7 @@ export default {
                 return `${year}-${month}-${day}T${time}`;
             },
             set(value) {
-                // Converte o formato YYYY-MM-DDTHH:MM para DD-MM-YYYY HH:MM:SS
+                // Converte o formato YYYY-MM-DDTHH:MM para YYYY-MM-DD HH:MM:SS
                 const [date, time] = value.split('T');
                 const [year, month, day] = date.split('-');
                 const formattedDate = `${year}-${month}-${day} ${time}:00`;
@@ -350,12 +350,19 @@ export default {
             formData.append('title', this.newTaskRequest.titulo);
             formData.append('description', this.newTaskRequest.descricao);
             formData.append('usuariosAtribuidos', JSON.stringify(this.usuariosAtribuidos)); // Converte para string JSON
-            if (this.newTaskRequest.dataEntrega !== "") {
-                let dataEntrega = new Date(this.newTaskRequest.dataEntrega).toISOString().slice(0, 19).replace('T', ' ');
-                formData.append('due_date', dataEntrega);
-            }
-            console.log()
-            
+
+            // Converte a data de entrega para o formato YYYY-MM-DD HH:MM:SS
+            let dataEntrega = new Date(this.newTaskRequest.dataEntrega);
+            let year = dataEntrega.getFullYear();
+            let month = (dataEntrega.getMonth() + 1).toString().padStart(2, '0');
+            let day = dataEntrega.getDate().toString().padStart(2, '0');
+            let hours = dataEntrega.getHours().toString().padStart(2, '0');
+            let minutes = dataEntrega.getMinutes().toString().padStart(2, '0');
+            let seconds = '00'; // Definido como '00' se não estiver disponível
+
+            let formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            formData.append('due_date', formattedDate);
+
             // Recupera a resposta/erros de forma assíncrona
             axios.post(this.urlBase, formData)
                 .then(response => {
@@ -383,20 +390,30 @@ export default {
             formData.append('_method', 'patch')
             formData.append('title', this.$store.state.item.title)
             formData.append('description', this.$store.state.item.description)
-            
+
             if (this.$store.state.updateStatusId == 99) {
                 formData.append('status_id', this.$store.state.status.id)
             } else {
                 formData.append('status_id', this.$store.state.updateStatusId)
             }
-
             formData.append('usuariosAtribuidos', this.$store.state.assignedUsersIds); // Converte para string JSON
 
-            if(this.$store.state.dataEntrega === ''){
-                formData.append('due_date', this.$store.state.due_date)
-            }else{
-                formData.append('due_date', this.$store.state.dataEntrega)
+            let dataEntregaString = this.$store.state.dataEntrega || this.$store.state.item.due_date;
+
+            if (dataEntregaString) {
+                // Converte a data de entrega para o formato YYYY-MM-DD HH:MM:SS
+                let dataEntrega = new Date(dataEntregaString);
+                let year = dataEntrega.getFullYear();
+                let month = (dataEntrega.getMonth() + 1).toString().padStart(2, '0');
+                let day = dataEntrega.getDate().toString().padStart(2, '0');
+                let hours = dataEntrega.getHours().toString().padStart(2, '0');
+                let minutes = dataEntrega.getMinutes().toString().padStart(2, '0');
+                let seconds = '00'; // Definido como '00' se não estiver disponível
+                let formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+                formData.append('due_date', formattedDate);
             }
+
 
             axios.post(url, formData)
                 .then(response => {
