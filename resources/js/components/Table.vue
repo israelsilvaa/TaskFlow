@@ -63,6 +63,7 @@ export default {
             this.$store.state.user = obj.user.name.toString();
             this.$store.state.status = obj.status;
             this.$store.state.updateStatusId = 99;
+            this.$store.state.dataEntrega = '';
             this.$store.state.assignedUsersNames = obj.assigned_users.map(user => user.name).join(', '); // string 'israel,maria'
             this.$store.state.assignedUsersIds = obj.assigned_users.map(user => user.id);
         }

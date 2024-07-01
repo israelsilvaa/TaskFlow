@@ -15,14 +15,15 @@ const store = createStore({
         item: {},
         user: {},
         status: "",
-        assignedUsersNames: "",
-        due_date: "",
-        
+        due_date: '',
 
+        // visualizar
+        assignedUsersNames: "",
+        
         // atualizar
-      
-        assignedUsersIds: [],
         updateStatusId: 99,
+        assignedUsersIds: [],
+        dataEntrega: '',
 
         //deletar
         deletedTask: '',

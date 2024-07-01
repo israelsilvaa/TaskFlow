@@ -199,7 +199,7 @@
                 v-if="this.newTaskRequest.status == 'erro'"></alert-component>
         </template>
 
-        <template v-slot:conteudo >
+        <template v-slot:conteudo>
             <input-container-component titulo="ID">
                 <input type="text" class="form-control" :value="$store.state.item.id" disabled>
             </input-container-component>
@@ -220,9 +220,8 @@
 
         <template v-slot:rodape>
             <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
-            <button type="button" class="btn btn-danger m-1" @click="deleteTask()" v-if="this.$store.state.deletedTask  != 'deletado' "
-            >Remover</button>
-            {{ this.$store.state.deletedTask  }}
+            <button type="button" class="btn btn-danger m-1" @click="deleteTask()"
+                v-if="this.$store.state.deletedTask != 'deletado'">Remover</button>
         </template>
     </modal-component>
     <!-- Fim Modal de REMOÇÃO de tasks -->
@@ -298,22 +297,17 @@ export default {
         },
         formattedDueDate: {
             get() {
-                const dueDate = this.$store.state.item.due_date;
-                if (!dueDate) return ''; // Retorna string vazia se due_date for undefined
-
-                const [date, time] = dueDate.split(' ');
+                // Converte o formato DD-MM-YYYY HH:MM para YYYY-MM-DDTHH:MM
+                const [date, time] = this.$store.state.item.due_date.split(' ');
                 const [day, month, year] = date.split('-');
                 return `${year}-${month}-${day}T${time}`;
             },
             set(value) {
-                if (!value) {
-                    this.$store.commit('setDueDate', '');
-                    return;
-                }
-
+                // Converte o formato YYYY-MM-DDTHH:MM para DD-MM-YYYY HH:MM:SS
                 const [date, time] = value.split('T');
                 const [year, month, day] = date.split('-');
-                this.$store.commit('setDueDate', `${day}-${month}-${year} ${time}`);
+                const formattedDate = `${year}-${month}-${day} ${time}:00`;
+                this.$store.state.dataEntrega = formattedDate;
             }
         },
         isUserLoggedIn() {
@@ -342,6 +336,7 @@ export default {
                 usuariosAtribuidos: "",
                 dataEntrega: "",
             },
+
             transacaoStatus: '',
             transacaoDetalhes: {},
 
@@ -355,9 +350,12 @@ export default {
             formData.append('title', this.newTaskRequest.titulo);
             formData.append('description', this.newTaskRequest.descricao);
             formData.append('usuariosAtribuidos', JSON.stringify(this.usuariosAtribuidos)); // Converte para string JSON
-            let dataEntrega = new Date(this.newTaskRequest.dataEntrega).toISOString().slice(0, 19).replace('T', ' ');
-            formData.append('due_date', dataEntrega);
-
+            if (this.newTaskRequest.dataEntrega !== "") {
+                let dataEntrega = new Date(this.newTaskRequest.dataEntrega).toISOString().slice(0, 19).replace('T', ' ');
+                formData.append('due_date', dataEntrega);
+            }
+            console.log()
+            
             // Recupera a resposta/erros de forma assíncrona
             axios.post(this.urlBase, formData)
                 .then(response => {
@@ -385,13 +383,20 @@ export default {
             formData.append('_method', 'patch')
             formData.append('title', this.$store.state.item.title)
             formData.append('description', this.$store.state.item.description)
+            
             if (this.$store.state.updateStatusId == 99) {
                 formData.append('status_id', this.$store.state.status.id)
             } else {
                 formData.append('status_id', this.$store.state.updateStatusId)
             }
-            formData.append('usuariosAtribuidos', this.$store.state.assignedUsersIds); // Converte para string JSON            
-            formData.append('due_date', this.formattedDueDate)
+
+            formData.append('usuariosAtribuidos', this.$store.state.assignedUsersIds); // Converte para string JSON
+
+            if(this.$store.state.dataEntrega === ''){
+                formData.append('due_date', this.$store.state.due_date)
+            }else{
+                formData.append('due_date', this.$store.state.dataEntrega)
+            }
 
             axios.post(url, formData)
                 .then(response => {
@@ -400,7 +405,7 @@ export default {
                     this.newTaskRequest.dados = ''
                     setTimeout(() => {
                         this.newTaskRequest = {}
-                    }, 5000);
+                    }, 3000);
                 })
                 .catch(errors => {
                     this.newTaskRequest.status = 'erro'
@@ -408,7 +413,7 @@ export default {
                     this.newTaskRequest.dados = errors.response.data.error.detail
                     setTimeout(() => {
                         this.newTaskRequest.status = ''
-                    }, 5000);
+                    }, 3000);
                 });
 
             this.loadTaskList()
@@ -432,7 +437,7 @@ export default {
                     setTimeout(() => {
                         this.newTaskRequest.status = ''
                     }, 2500);
-                    this.$store.state.deletedTask  = 'deletado';
+                    this.$store.state.deletedTask = 'deletado';
                 })
                 .catch(errors => {
                     this.newTaskRequest.status = 'erro'

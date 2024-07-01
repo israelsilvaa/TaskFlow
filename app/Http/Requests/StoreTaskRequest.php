@@ -27,7 +27,7 @@ class StoreTaskRequest extends FormRequest
             'title' => ['required', 'min:3', 'max:255'],
             'description' => ['required'],
             'status_id' => ['exists:status,id'],
-            'due_date' => ['nullable', 'date'],
+            'due_date' => ['required', 'date'],
         ];
     }
 
@@ -45,6 +45,7 @@ class StoreTaskRequest extends FormRequest
             'description.required' => 'O campo descrição é obrigatório.',
             'status_id.exists' => 'O status selecionado é inválido.',
             'due_date.date' => 'A data de entrega deve ser uma data válida.',
+            'due_date.required' => 'A data de entrega é obrigatória.',
         ];
     
     }
