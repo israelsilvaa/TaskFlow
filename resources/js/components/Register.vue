@@ -79,7 +79,11 @@ export default {
         register(e) {
             let url = 'http://localhost:8000/api/register'
             let configuracao = {
-                method: 'post',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json',
+                },
                 body: new URLSearchParams({
                     'name': this.name,
                     'email': this.email,
@@ -91,7 +95,10 @@ export default {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        this.$router.push('/login');
+
+                        console.error('registrado:', data.success);
+                        window.location.href = '/login';
+                        
                     } else {
                         // Lidar com erros de registro aqui
                         console.error('Erro ao registrar:', data);
