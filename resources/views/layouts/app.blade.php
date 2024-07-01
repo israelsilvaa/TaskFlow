@@ -24,7 +24,26 @@
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
+                <a class="navbar-brand btn btn-primary p-1" href="{{ url('/') }}">
+                    <svg width="30px" height="30px" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                            <path opacity="0.4" d="M12.3691 8.87988H17.6191" stroke="#000000" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path opacity="0.4" d="M6.38086 8.87988L7.13086 9.62988L9.38086 7.37988" stroke="#000000"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path opacity="0.4" d="M12.3691 15.8799H17.6191" stroke="#000000" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path opacity="0.4" d="M6.38086 15.8799L7.13086 16.6299L9.38086 14.3799" stroke="#000000"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z"
+                                stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            </path>
+                        </g>
+                    </svg>
+
                     {{ config('app.name', 'Laravel') }}
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -37,32 +56,25 @@
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto">
                         @auth
-                        <li class="nav-item">
-                            <a href="{{ route('tasks') }}" class="nav-link">Tarefas</a>
-                        </li>
-                        {{-- <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="tasksDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Gerenciar Tarefas
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="tasksDropdown">
-                                <li><a href="#" class="dropdown-item">Listar Tarefas</a></li>
-                                <li><a href="#" class="dropdown-item">Criar Tarefa</a></li>
-                            </ul>
-                        </li> --}}
-                        @if(Auth::user()->role == "admin") <!-- Verifica se o usuário é um administrador -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Administração
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                                <li><a href="#" class="dropdown-item">Gerenciar Usuários</a></li>
-                                <li><a href="#" class="dropdown-item">Atribuir Tarefas</a></li>
-                            </ul>
-                        </li>
-                        @endif
+                            <li class="nav-item">
+                                <a href="{{ route('home') }}" class="btn btn-secondary btn-sm m-1"><i
+                                        class="fa-solid fa-house"></i> Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('tarefas') }}" class="btn btn-secondary btn-sm m-1"><i
+                                        class="fa-solid fa-bars"></i> Tarefas</a>
+                            </li>
+                            @if (Auth::user()->role == 'admin' and Route::currentRouteName() == 'tarefas')
+                                <li>
+                                    <a class="btn btn-secondary btn-sm m-1" data-bs-toggle="modal"
+                                        data-bs-target="#modalTask">
+                                        <i class="fa-solid fa-pen-to-square"></i> Adicionar nova task
+                                    </a>
+                                </li>
+                            @endif
                         @endauth
                     </ul>
-                    
+
 
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ms-auto">
@@ -70,27 +82,34 @@
                         @guest
                             @if (Route::has('login'))
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Entrar') }}</a>
                                 </li>
                             @endif
 
                             @if (Route::has('register'))
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Registrar') }}</a>
                                 </li>
                             @endif
                         @else
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                    @if (Auth::user()->role == 'admin')
+                                        <i class="fa-solid fa-shield-halved"></i>
+                                    @else
+                                        <i class="fa-solid fa-user"></i>
+                                    @endif
                                     {{ Auth::user()->name }}
                                 </a>
-                                
+
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a href="#" class="dropdown-item">Meu perfil</a>
+                                    <a href="#" class="dropdown-item"><i class="fa-solid fa-address-card"></i> Meu
+                                        perfil</a>
                                     <a class="dropdown-item text-danger" href="{{ route('logout') }}"
-                                    onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
+                                        onclick="event.preventDefault();
+                                                     document.getElementById('logout-form').submit();"><i
+                                            class="fa-solid fa-door-open"></i>
                                         {{ __('Logout') }}
                                     </a>
 
@@ -104,12 +123,20 @@
                 </div>
             </div>
         </nav>
+        @auth
+            <nav aria-label="breadcrumb" class="container">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ Route::currentRouteName() }}</li>
+                </ol>
+            </nav>
+        @endauth
 
         <main class="py-4">
             @yield('content')
         </main>
     </div>
+    <script src="https://kit.fontawesome.com/bf4bab225b.js" crossorigin="anonymous"></script>
 </body>
-{{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script> --}}
 
 </html>

@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\StatusController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,8 +22,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::group(['prefix' => 'v1/'], function () {
+
+    Route::apiResource('task', TaskController::class)->middleware('jwt.auth');
+    Route::get('users', [UserController::class, 'usersAll'])->middleware('jwt.auth');
+    Route::get('status', [StatusController::class, 'index']);
+    
+});
+
 Route::post('login', [AuthController::class, 'login'])->name('login');
 Route::post('register', [AuthController::class, 'register'])->name('register');
-Route::post('logout', [AuthController::class, 'logout'])->middleware('jwt.auth');
-Route::post('refresh', [AuthController::class, 'refresh'])->middleware('jwt.auth');
+Route::post('refresh', [AuthController::class, 'refresh']);
 Route::post('me', [AuthController::class, 'me'])->middleware('jwt.auth');
+Route::post('logout', [AuthController::class, 'logout'])->middleware('jwt.auth');
