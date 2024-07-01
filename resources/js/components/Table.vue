@@ -57,13 +57,12 @@
 export default {
     methods: {
         setStore(obj) {
-            this.$store.state.request.status = ''
-            this.$store.state.request.detalhes = ''
-
             this.$store.state.item = { ...obj };
 
+            this.$store.state.deletedTask = ''; // resetando botão de deletar no modal
             this.$store.state.user = obj.user.name.toString();
             this.$store.state.status = obj.status;
+            this.$store.state.updateStatusId = 99;
             this.$store.state.assignedUsersNames = obj.assigned_users.map(user => user.name).join(', '); // string 'israel,maria'
             this.$store.state.assignedUsersIds = obj.assigned_users.map(user => user.id);
         }

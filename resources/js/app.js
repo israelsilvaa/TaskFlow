@@ -16,12 +16,16 @@ const store = createStore({
         user: {},
         status: "",
         assignedUsersNames: "",
-        request: { status: "", mensagem: "", dado: "" },
         due_date: "",
+        
 
         // atualizar
+      
         assignedUsersIds: [],
-        updateStatusId: 1,
+        updateStatusId: 99,
+
+        //deletar
+        deletedTask: '',
     },
     mutations: {
         setDueDate(state, date) {

@@ -65,7 +65,8 @@
                     </template>
                     <template v-slot:rodape>
                         <paginate-component>
-                            <li v-for="link, key in tasks.links" :key="key" class="page-item" @click="paginateTasks(link)">
+                            <li v-for="link, key in tasks.links" :key="key" class="page-item"
+                                @click="paginateTasks(link)">
                                 <a :class="link.active ? 'page-link active' : 'page-link'" v-html="link.label"></a>
                             </li>
                         </paginate-component>
@@ -80,18 +81,18 @@
     <!-- Inicio Modal de CRIAÇÃO de tasks -->
     <modal-component id="modalTask" titulo="Adicionar task">
         <template v-slot:alertas>
-            <alert-component tipo="success" :detalhes="transacaoDetalhes" titulo="Cadastro realizado com sucesso"
-                v-if="transacaoStatus == 'adicionado'"></alert-component>
-            <alert-component tipo="danger" :detalhes="transacaoDetalhes" titulo="Erro ao tentar cadastrar a task"
-                v-if="transacaoStatus == 'erro'"></alert-component>
+            <alert-component tipo="success" :detalhes="this.newTaskRequest" titulo="Transação realizada com sucesso"
+                v-if="this.newTaskRequest.status == 'success'"></alert-component>
+            <alert-component tipo="danger" :detalhes="this.newTaskRequest" titulo="Erro na Transação"
+                v-if="this.newTaskRequest.status == 'erro'"></alert-component>
         </template>
 
         <template v-slot:conteudo>
             <div class="form-group">
                 <input-container-component titulo="Titulo" id="novaTask" id-help="novaTaskHelp"
                     texto-ajuda="Informe o Titulo da task">
-                    <input type="text" class="form-control" id="novaTask" placeholder="Backup dataBase" v-model="titulo"
-                        aria-describedby="novaTaskHelp">
+                    <input type="text" class="form-control" id="novaTask" placeholder="Backup dataBase"
+                        v-model="this.newTaskRequest.titulo" aria-describedby="novaTaskHelp">
                 </input-container-component>
             </div>
 
@@ -99,7 +100,7 @@
                 <input-container-component titulo="Descrição" id="novaDescricao" id-help="novaDescricaoHelp"
                     texto-ajuda="O que deve ser feito e outras observações">
                     <input type="text" class="form-control" id="novaDescricao"
-                        placeholder="baixar base da produção e salvar no driver" v-model="descricao"
+                        placeholder="baixar base da produção e salvar no driver" v-model="this.newTaskRequest.descricao"
                         aria-describedby="novaDescricaoHelp">
                 </input-container-component>
             </div>
@@ -116,7 +117,7 @@
                             <li v-for="usuario in usuarios" :key="usuario.id">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" :id="'usuario_' + usuario.id"
-                                        v-model="usuariosAtribuidos" :value="usuario.id">
+                                        v-model="this.newTaskRequest.usuariosAtribuidos" :value="usuario.id">
                                     <label class="form-check-label" :for="'usuario_' + usuario.id">
                                         <!-- <i  class="fa-solid fa-shield-halved"></i>  -->
                                         <i v-if="usuario.role == 'admin'" class="fa-solid fa-shield-halved"></i>
@@ -133,8 +134,8 @@
             <div class="form-group">
                 <input-container-component titulo="Data de Entrega" id="dataEntrega" id-help="dataEntregaHelp"
                     texto-ajuda="Quando dever ser entregue">
-                    <input type="datetime-local" class="form-control" id="dataEntrega" v-model="dataEntrega"
-                        aria-describedby="dataEntregaHelp">
+                    <input type="datetime-local" class="form-control" id="dataEntrega"
+                        v-model="this.newTaskRequest.dataEntrega" aria-describedby="dataEntregaHelp">
                 </input-container-component>
             </div>
         </template>
@@ -192,13 +193,13 @@
     <!-- Inicio Modal de REMOÇÃO de tasks -->
     <modal-component id="modalTaskRemover" titulo="Remoção de task">
         <template v-slot:alertas>
-            <alert-component tipo="success" titulo="Transação realizada com sucesso" :detalhes="$store.state.request"
-                v-if="$store.state.request.status == 'sucesso'"></alert-component>
-            <alert-component tipo="danger" titulo="Erro na transação" :detalhes="$store.state.request"
-                v-if="$store.state.request.status == 'erro'"></alert-component>
+            <alert-component tipo="success" :detalhes="this.newTaskRequest" titulo="Transação realizada com sucesso"
+                v-if="this.newTaskRequest.status == 'success'"></alert-component>
+            <alert-component tipo="danger" :detalhes="this.newTaskRequest" titulo="Erro na Transação"
+                v-if="this.newTaskRequest.status == 'erro'"></alert-component>
         </template>
 
-        <template v-slot:conteudo v-if="$store.state.request.status != 'sucesso'">
+        <template v-slot:conteudo >
             <input-container-component titulo="ID">
                 <input type="text" class="form-control" :value="$store.state.item.id" disabled>
             </input-container-component>
@@ -219,8 +220,9 @@
 
         <template v-slot:rodape>
             <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
-            <button type="button" class="btn btn-danger m-1" @click="deleteTask()"
-                v-if="$store.state.request.status != 'sucesso'">Remover</button>
+            <button type="button" class="btn btn-danger m-1" @click="deleteTask()" v-if="this.$store.state.deletedTask  != 'deletado' "
+            >Remover</button>
+            {{ this.$store.state.deletedTask  }}
         </template>
     </modal-component>
     <!-- Fim Modal de REMOÇÃO de tasks -->
@@ -228,10 +230,10 @@
     <!-- Inicio Modal de ATUALIZAÇÃO de tasks -->
     <modal-component id="modalTaskAtualizar" titulo="Atualização de task">
         <template v-slot:alertas>
-            <alert-component tipo="success" titulo="Transação realizada com sucesso" :detalhes="$store.state.request"
-                v-if="$store.state.request.status == 'sucesso'"></alert-component>
-            <alert-component tipo="danger" titulo="Erro na transação" :detalhes="$store.state.request"
-                v-if="$store.state.request.status == 'erro'"></alert-component>
+            <alert-component tipo="success" :detalhes="this.newTaskRequest" titulo="Transação realizada com sucesso"
+                v-if="this.newTaskRequest.status == 'success'"></alert-component>
+            <alert-component tipo="danger" :detalhes="this.newTaskRequest" titulo="Erro na Transação"
+                v-if="this.newTaskRequest.status == 'erro'"></alert-component>
         </template>
 
         <template v-slot:conteudo>
@@ -252,7 +254,7 @@
                 </input-container-component>
             </div>
 
-            <status-button-input-component :status="$store.state.status"
+            <status-button-input-component :statusStore="$store.state.status"
                 :statusList="statusList"></status-button-input-component>
 
             <div class="form-group mt-2 mb-2" v-if="isUserLoggedIn">
@@ -332,10 +334,14 @@ export default {
             usuarios: { data: [] },
 
             // atualizar/criar
-            titulo: '',
-            descricao: '',
-            usuariosAtribuidos: [],
-            dataEntrega: '',
+            newTaskRequest: {
+                status: "",
+                mensagem: "",
+                titulo: "",
+                descricao: "",
+                usuariosAtribuidos: "",
+                dataEntrega: "",
+            },
             transacaoStatus: '',
             transacaoDetalhes: {},
 
@@ -346,41 +352,30 @@ export default {
     methods: {
         saveTask() {
             let formData = new FormData();
-            formData.append('title', this.titulo);
-            formData.append('description', this.descricao);
+            formData.append('title', this.newTaskRequest.titulo);
+            formData.append('description', this.newTaskRequest.descricao);
             formData.append('usuariosAtribuidos', JSON.stringify(this.usuariosAtribuidos)); // Converte para string JSON
-            // Converte para formato `YYYY-MM-DD HH:MM:SS`
-            let dataEntrega = new Date(this.dataEntrega).toISOString().slice(0, 19).replace('T', ' ');
+            let dataEntrega = new Date(this.newTaskRequest.dataEntrega).toISOString().slice(0, 19).replace('T', ' ');
             formData.append('due_date', dataEntrega);
 
             // Recupera a resposta/erros de forma assíncrona
             axios.post(this.urlBase, formData)
                 .then(response => {
-                    this.transacaoStatus = 'adicionado';
-                    this.transacaoDetalhes = {
-                        mensagem: 'ID do registro: ' + response.data.success.detail.id
-                    };
+                    this.newTaskRequest.status = 'success'
+                    this.newTaskRequest.mensagem = response.data.success.detail
+                    this.newTaskRequest.dados = ''
+                    setTimeout(() => {
+                        this.newTaskRequest = {}
+                    }, 2500);
                 })
                 .catch(errors => {
-
-                    this.transacaoStatus = 'erro';
-                    if (errors.response && errors.response.data) {
-                        if (errors.response.data.error) {
-                            // Caso 1: Formato com 'error'
-                            this.transacaoDetalhes = {
-                                mensagem: errors.response.data.error.title,
-                                dados: errors.response.data.error.detail
-                            };
-                        } else if (errors.response.data.message) {
-                            // Caso 2: Formato com 'message'
-                            this.transacaoDetalhes = {
-                                mensagem: errors.response.data.message,
-                                // dados: errors.response.data.errors
-                            };
-                        }
-                    }
+                    this.newTaskRequest.status = 'erro'
+                    this.newTaskRequest.mensagem = errors.response.data.error.detail
+                    this.newTaskRequest.dados = errors.response.data.error.detail
+                    setTimeout(() => {
+                        this.newTaskRequest.status = ''
+                    }, 2500);
                 });
-
             this.loadTaskList()
         },
         updateTask() {
@@ -390,20 +385,34 @@ export default {
             formData.append('_method', 'patch')
             formData.append('title', this.$store.state.item.title)
             formData.append('description', this.$store.state.item.description)
-            formData.append('status_id', this.$store.state.updateStatusId)
+            if (this.$store.state.updateStatusId == 99) {
+                formData.append('status_id', this.$store.state.status.id)
+            } else {
+                formData.append('status_id', this.$store.state.updateStatusId)
+            }
             formData.append('usuariosAtribuidos', this.$store.state.assignedUsersIds); // Converte para string JSON            
             formData.append('due_date', this.formattedDueDate)
 
             axios.post(url, formData)
                 .then(response => {
-                    this.$store.state.request.status = 'sucesso'
-                    this.$store.state.request.mensagem = response.data.success.detail
-                    this.loadTaskList()
+                    this.newTaskRequest.status = 'success'
+                    this.newTaskRequest.mensagem = response.data.success.detail
+                    this.newTaskRequest.dados = ''
+                    setTimeout(() => {
+                        this.newTaskRequest = {}
+                    }, 5000);
                 })
                 .catch(errors => {
-                    this.$store.state.request.status = 'erro'
-                    this.$store.state.request.mensagem = errors.response.data.error.detail
+                    this.newTaskRequest.status = 'erro'
+                    this.newTaskRequest.mensagem = errors.response.data.error.detail
+                    this.newTaskRequest.dados = errors.response.data.error.detail
+                    setTimeout(() => {
+                        this.newTaskRequest.status = ''
+                    }, 5000);
                 });
+
+            this.loadTaskList()
+
         },
         deleteTask() {
             let confirmacao = confirm('Tem certeza que deseja remover essa task?')
@@ -416,12 +425,22 @@ export default {
 
             axios.post(url, formData)
                 .then(response => {
-                    this.$store.state.request.status = 'sucesso'
-                    this.$store.state.request.mensagem = response.data.success.detail
+                    this.newTaskRequest.status = 'success'
+                    this.newTaskRequest.mensagem = response.data.success.detail
+                    this.newTaskRequest.dados = ''
+
+                    setTimeout(() => {
+                        this.newTaskRequest.status = ''
+                    }, 2500);
+                    this.$store.state.deletedTask  = 'deletado';
                 })
                 .catch(errors => {
-                    this.$store.state.request.status = 'erro'
-                    this.$store.state.request.mensagem = errors.response.data.error.detail
+                    this.newTaskRequest.status = 'erro'
+                    this.newTaskRequest.mensagem = errors.response.data.error.detail
+                    this.newTaskRequest.dados = errors.response.data.error.detail
+                    setTimeout(() => {
+                        this.newTaskRequest.status = ''
+                    }, 2500);
                 });
             this.loadTaskList()
         },
@@ -490,7 +509,7 @@ export default {
                 .catch(errors => {
                 });
         },
-        
+
     },
     mounted() {
         this.loadTaskList()
