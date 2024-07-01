@@ -383,9 +383,17 @@ export default {
             }
             formData.append('usuariosAtribuidos', this.$store.state.assignedUsersIds); // Converte para string JSON
 
-            let dataEntregaString = this.$store.state.dataEntrega || this.$store.state.item.due_date;
+            if(this.$store.state.dataEntrega === 'vazio'){
+                formData.append('due_date', this.formatDateToString(this.$store.state.item.due_date));
+            }else{
+                formData.append('due_date', this.formatDateToString(this.$store.state.dataEntrega));
+            }
 
-            formData.append('due_date', this.formatDateToString(dataEntregaString));
+            console.log(this.$store.state.item.due_date)
+            console.log(this.formatDateToString(this.$store.state.item.due_date))
+            
+            console.log(this.$store.state.dataEntrega)
+            console.log(this.$store.state.dataEntrega === 'vazio')
 
             axios.post(url, formData)
                 .then(response => {

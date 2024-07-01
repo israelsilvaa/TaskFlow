@@ -23,7 +23,7 @@ const store = createStore({
         // atualizar
         updateStatusId: 99,
         assignedUsersIds: [],
-        dataEntrega: '',
+        dataEntrega: 'vazio',
 
         //deletar
         deletedTask: '',
