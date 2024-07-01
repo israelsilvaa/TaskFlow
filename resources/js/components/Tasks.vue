@@ -1,76 +1,79 @@
 <template>
-    <div class="row justify-content-center">
-        <div class="col-10">
-            <!-- Inicio do card de BUSCCA -->
-            <card-component titulo="Busca de Tasks">
-                <template v-slot:conteudo>
-                    <div class="row">
-                        <div class="col mb-3">
-                            <input-container-component titulo="Título" id="inputTask" id-help="tituloHelp"
-                                texto-ajuda="Informe o Titulo da task">
-                                <input type="text" class="form-control" id="inputTask" placeholder="Backup dataBase"
-                                    aria-describedby="tituloHelp" v-model="busca.title">
-                            </input-container-component>
+    <div class="container">
+
+        <div class="row justify-content-center">
+            <div class="col-10">
+                <!-- Inicio do card de BUSCCA -->
+                <card-component titulo="Busca de Tasks">
+                    <template v-slot:conteudo>
+                        <div class="row">
+                            <div class="col mb-3">
+                                <input-container-component titulo="Título" id="inputTask" id-help="tituloHelp"
+                                    texto-ajuda="Informe o Titulo da task">
+                                    <input type="text" class="form-control" id="inputTask" placeholder="Backup dataBase"
+                                        aria-describedby="tituloHelp" v-model="busca.title">
+                                </input-container-component>
+                            </div>
+
+                            <div class="col mb-3">
+                                <input-container-component titulo="Descrição" id="inputDescription"
+                                    id-help="descriptionHelp" texto-ajuda="Informe a Descrição da task">
+                                    <input type="text" class="form-control" id="inputDescription"
+                                        placeholder="baixar e upar no driver" aria-describedby="descriptionHelp"
+                                        v-model="busca.description">
+                                </input-container-component>
+                            </div>
+
+                            <div class="col mb-3">
+                                <select-status-component titulo="Status" id="selectStatus" id-help="selectStatusHelp"
+                                    texto-ajuda="Filtre por status">
+                                    <select class="form-select m-0" aria-label="Default select example"
+                                        v-model="busca.status_id">
+                                        <option selected value="">Selecione um status</option>
+                                        <option v-for="obj in statusList" :key="obj.id" :value="obj.id">{{ obj.name }}
+                                        </option>
+                                    </select>
+                                </select-status-component>
+                            </div>
+
                         </div>
-
-                        <div class="col mb-3">
-                            <input-container-component titulo="Descrição" id="inputDescription"
-                                id-help="descriptionHelp" texto-ajuda="Informe a Descrição da task">
-                                <input type="text" class="form-control" id="inputDescription"
-                                    placeholder="baixar e upar no driver" aria-describedby="descriptionHelp"
-                                    v-model="busca.description">
-                            </input-container-component>
+                    </template>
+                    <template v-slot:rodape>
+                        <div class="">
+                            <button type="submit" class="btn btn-primary btn-sm" @click="searchTasks()"><i
+                                    class="fa-solid fa-magnifying-glass"></i> Pesquisar</button>
                         </div>
+                    </template>
+                </card-component>
+                <!-- Fim do card de BUSCCA -->
 
-                        <div class="col mb-3">
-                            <select-status-component titulo="Status" id="selectStatus" id-help="selectStatusHelp"
-                                texto-ajuda="Filtre por status">
-                                <select class="form-select m-0" aria-label="Default select example"
-                                    v-model="busca.status_id">
-                                    <option selected value="">Selecione um status</option>
-                                    <option v-for="obj in statusList" :key="obj.id" :value="obj.id">{{ obj.name }}
-                                    </option>
-                                </select>
-                            </select-status-component>
-                        </div>
+                <!-- Inicio do card de LISTAGEM de tasks -->
+                <card-component titulo="Relação de Tasks">
+                    <template v-slot:conteudo>
+                        <table-component :dados="tasks.data"
+                            :visualizar="{ userLogged: userLogged, dataBsTarget: '#modalTaskVisualizar' }"
+                            :atualizar="{ userLogged: userLogged, dataBsTarget: '#modalTaskAtualizar' }"
+                            :remover="{ userLogged: userLogged, dataBsTarget: '#modalTaskRemover' }" :titulos="{
+                                id: { titulo: 'ID', tipo: 'texto' },
+                                title: { titulo: 'Título', tipo: 'texto' },
+                                description: { titulo: 'Descrição', tipo: 'texto' },
+                                status: { titulo: 'Status', tipo: 'status' },
+                                assigned_users: { titulo: 'Atribuídos', tipo: 'array' },
+                                user: { titulo: 'Responsável', tipo: 'obj' },
+                                due_date: { titulo: 'Entrega', tipo: 'data' },
+                            }"></table-component>
+                    </template>
+                    <template v-slot:rodape>
+                        <paginate-component>
+                            <li v-for="link, key in tasks.links" :key="key" class="page-item" @click="paginateTasks(link)">
+                                <a :class="link.active ? 'page-link active' : 'page-link'" v-html="link.label"></a>
+                            </li>
+                        </paginate-component>
 
-                    </div>
-                </template>
-                <template v-slot:rodape>
-                    <div class="">
-                        <button type="submit" class="btn btn-primary btn-sm" @click="pesquisar()"><i
-                                class="fa-solid fa-magnifying-glass"></i> Pesquisar</button>
-                    </div>
-                </template>
-            </card-component>
-            <!-- Fim do card de BUSCCA -->
-
-            <!-- Inicio do card de LISTAGEM de tasks -->
-            <card-component titulo="Relação de Tasks">
-                <template v-slot:conteudo>
-                    <table-component :dados="tasks.data"
-                        :visualizar="{ userLogged: userLogged, dataBsTarget: '#modalTaskVisualizar' }"
-                        :atualizar="{ userLogged: userLogged, dataBsTarget: '#modalTaskAtualizar' }"
-                        :remover="{ userLogged: userLogged, dataBsTarget: '#modalTaskRemover' }" :titulos="{
-                            id: { titulo: 'ID', tipo: 'texto' },
-                            title: { titulo: 'Título', tipo: 'texto' },
-                            description: { titulo: 'Descrição', tipo: 'texto' },
-                            status: { titulo: 'Status', tipo: 'status' },
-                            assigned_users: { titulo: 'Atribuídos', tipo: 'array' },
-                            user: { titulo: 'Responsável', tipo: 'obj' },
-                            due_date: { titulo: 'Entrega', tipo: 'data' },
-                        }"></table-component>
-                </template>
-                <template v-slot:rodape>
-                    <paginate-component>
-                        <li v-for="link, key in tasks.links" :key="key" class="page-item" @click="paginacao(link)">
-                            <a :class="link.active ? 'page-link active' : 'page-link'" v-html="link.label"></a>
-                        </li>
-                    </paginate-component>
-
-                </template>
-            </card-component>
-            <!-- Fim do card de LISTAGEM de tasks -->
+                    </template>
+                </card-component>
+                <!-- Fim do card de LISTAGEM de tasks -->
+            </div>
         </div>
     </div>
 
@@ -138,7 +141,7 @@
 
         <template v-slot:rodape>
             <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
-            <button type="button" class="btn btn-primary" @click="salvar()">Salvar</button>
+            <button type="button" class="btn btn-primary" @click="saveTask()">Salvar</button>
         </template>
     </modal-component>
     <!-- Fim Modal de CRIAÇÃO de tasks -->
@@ -216,7 +219,7 @@
 
         <template v-slot:rodape>
             <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
-            <button type="button" class="btn btn-danger m-1" @click="remover()"
+            <button type="button" class="btn btn-danger m-1" @click="deleteTask()"
                 v-if="$store.state.request.status != 'sucesso'">Remover</button>
         </template>
     </modal-component>
@@ -271,7 +274,7 @@
 
         <template v-slot:rodape>
             <button type="button" class="btn btn-secondary m-1" data-bs-dismiss="modal">Fechar</button>
-            <button type="button" class="btn btn-warning" @click="atualizar()">Atualizar</button>
+            <button type="button" class="btn btn-warning" @click="updateTask()">Atualizar</button>
         </template>
     </modal-component>
     <!-- Fim Modal de ATUALIZAÇÃO de tasks -->
@@ -324,7 +327,7 @@ export default {
             busca: { title: '', description: '', status_id: '' },
 
             // visualizar 
-            tasks: { data: [] }, // definido como vazio, aguardar a requisição de tasks terminar: carregarListaTasks()
+            tasks: { data: [] }, // definido como vazio, aguardar a requisição de tasks terminar: loadTaskList()
             statusList: {},
             usuarios: { data: [] },
 
@@ -341,114 +344,7 @@ export default {
         }
     },
     methods: {
-        atualizar() {
-            let url = this.urlBase + '/' + this.$store.state.item.id
-            let formData = new FormData();
-
-            formData.append('_method', 'patch')
-            formData.append('title', this.$store.state.item.title)
-            formData.append('description', this.$store.state.item.description)
-            formData.append('status_id', this.$store.state.updateStatusId)
-            formData.append('usuariosAtribuidos', this.$store.state.assignedUsersIds); // Converte para string JSON            
-            formData.append('due_date', this.formattedDueDate)
-
-            axios.post(url, formData)
-                .then(response => {
-                    this.$store.state.request.status = 'sucesso'
-                    this.$store.state.request.mensagem = response.data.success.detail
-                    this.carregarListaTasks()
-                })
-                .catch(errors => {
-                    this.$store.state.request.status = 'erro'
-                    this.$store.state.request.mensagem = errors.response.data.error.detail
-                });
-        },
-        remover() {
-            let confirmacao = confirm('Tem certeza que deseja remover essa task?')
-            if (!confirmacao) return false;
-
-            let formData = new FormData();
-            formData.append('_method', 'delete')
-
-            let url = this.urlBase + '/' + this.$store.state.item.id
-
-            axios.post(url, formData)
-                .then(response => {
-                    this.$store.state.request.status = 'sucesso'
-                    this.$store.state.request.mensagem = response.data.success.detail
-                })
-                .catch(errors => {
-                    this.$store.state.request.status = 'erro'
-                    this.$store.state.request.mensagem = errors.response.data.error.detail
-                });
-            this.carregarListaTasks()
-        },
-        pesquisar() {
-            let filtro = ''
-            for (let chave in this.busca) {
-                if (this.busca[chave]) {
-                    if (filtro != '') {
-                        filtro += ";"
-                    }
-
-                    filtro += chave + ":like:" + this.busca[chave]
-                }
-            }
-            if (filtro != '') {
-                this.urlPaginacao = 'page=1'
-                this.urlFiltro = '&filtro=' + filtro
-            } else {
-                this.urlFiltro = ''
-            }
-            this.carregarListaTasks() // carrega lista com filtros de pesquisa atualizados
-        },
-        paginacao(link) {
-            if (link.url) {
-                // this.urlBase = link.url // ajustar parametro de consulta com parametro da pagina
-                this.urlPaginacao = link.url.split('?')[1]
-                this.carregarListaTasks() // requisita dados para API, da pagina desejada 
-            }
-        },
-        carregarListaTasks() {
-            let url = this.urlBase + '?' + this.urlPaginacao + this.urlFiltro;
-            axios.get(url)
-                .then(response => {
-                    this.tasks = response.data
-                })
-                .catch(errors => {
-                });
-
-        },
-        carregarUsuarioLogado() {
-            let url = 'http://127.0.0.1:8000/api/me';
-            axios.post(url)
-                .then(response => {
-                    this.userLogged = response.data.success.detail.User
-                })
-                .catch(errors => {
-                });
-        },
-        carregarUsers() {
-            let url = 'http://localhost:8000/api/v1/users'
-
-            axios.get(url)
-                .then(response => {
-                    this.usuarios = response.data.success.detail
-                })
-                .catch(errors => {
-                });
-        },
-        carregarStatus() {
-            let url = 'http://localhost:8000/api/v1/status'
-
-            axios.get(url)
-                .then(response => {
-                    this.statusList = response.data.success.detail
-                })
-                .catch(errors => {
-                });
-        },
-        salvar() {
+        saveTask() {
             let formData = new FormData();
             formData.append('title', this.titulo);
             formData.append('description', this.descricao);
@@ -485,14 +381,122 @@ export default {
                     }
                 });
 
-            this.carregarListaTasks()
-        }
+            this.loadTaskList()
+        },
+        updateTask() {
+            let url = this.urlBase + '/' + this.$store.state.item.id
+            let formData = new FormData();
+
+            formData.append('_method', 'patch')
+            formData.append('title', this.$store.state.item.title)
+            formData.append('description', this.$store.state.item.description)
+            formData.append('status_id', this.$store.state.updateStatusId)
+            formData.append('usuariosAtribuidos', this.$store.state.assignedUsersIds); // Converte para string JSON            
+            formData.append('due_date', this.formattedDueDate)
+
+            axios.post(url, formData)
+                .then(response => {
+                    this.$store.state.request.status = 'sucesso'
+                    this.$store.state.request.mensagem = response.data.success.detail
+                    this.loadTaskList()
+                })
+                .catch(errors => {
+                    this.$store.state.request.status = 'erro'
+                    this.$store.state.request.mensagem = errors.response.data.error.detail
+                });
+        },
+        deleteTask() {
+            let confirmacao = confirm('Tem certeza que deseja remover essa task?')
+            if (!confirmacao) return false;
+
+            let formData = new FormData();
+            formData.append('_method', 'delete')
+
+            let url = this.urlBase + '/' + this.$store.state.item.id
+
+            axios.post(url, formData)
+                .then(response => {
+                    this.$store.state.request.status = 'sucesso'
+                    this.$store.state.request.mensagem = response.data.success.detail
+                })
+                .catch(errors => {
+                    this.$store.state.request.status = 'erro'
+                    this.$store.state.request.mensagem = errors.response.data.error.detail
+                });
+            this.loadTaskList()
+        },
+        searchTasks() {
+            let filtro = ''
+            for (let chave in this.busca) {
+                if (this.busca[chave]) {
+                    if (filtro != '') {
+                        filtro += ";"
+                    }
+
+                    filtro += chave + ":like:" + this.busca[chave]
+                }
+            }
+            if (filtro != '') {
+                this.urlPaginacao = 'page=1'
+                this.urlFiltro = '&filtro=' + filtro
+            } else {
+                this.urlFiltro = ''
+            }
+            this.loadTaskList() // carrega lista com filtros de pesquisa atualizados
+        },
+        paginateTasks(link) {
+            if (link.url) {
+                // this.urlBase = link.url // ajustar parametro de consulta com parametro da pagina
+                this.urlPaginacao = link.url.split('?')[1]
+                this.loadTaskList() // requisita dados para API, da pagina desejada 
+            }
+        },
+        loadTaskList() {
+            let url = this.urlBase + '?' + this.urlPaginacao + this.urlFiltro;
+            axios.get(url)
+                .then(response => {
+                    this.tasks = response.data
+                })
+                .catch(errors => {
+                });
+
+        },
+        loadLoggedInUser() {
+            let url = 'http://127.0.0.1:8000/api/me';
+            axios.post(url)
+                .then(response => {
+                    this.userLogged = response.data.success.detail.User
+                })
+                .catch(errors => {
+                });
+        },
+        loadUsers() {
+            let url = 'http://localhost:8000/api/v1/users'
+
+            axios.get(url)
+                .then(response => {
+                    this.usuarios = response.data.success.detail
+                })
+                .catch(errors => {
+                });
+        },
+        loadStatuses() {
+            let url = 'http://localhost:8000/api/v1/status'
+
+            axios.get(url)
+                .then(response => {
+                    this.statusList = response.data.success.detail
+                })
+                .catch(errors => {
+                });
+        },
+        
     },
     mounted() {
-        this.carregarListaTasks()
-        this.carregarUsers()
-        this.carregarStatus()
-        this.carregarUsuarioLogado()
+        this.loadTaskList()
+        this.loadUsers()
+        this.loadStatuses()
+        this.loadLoggedInUser()
     }
 
 }
