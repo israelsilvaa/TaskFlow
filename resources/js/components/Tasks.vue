@@ -105,29 +105,11 @@
                 </input-container-component>
             </div>
 
-            <div class="form-group">
-                <input-container-component titulo="Atribuir usuários" id="usuariosAtribuidos"
-                    id-help="usuariosAtribuidosHelp" texto-ajuda="Selecione os usuários a serem atribuídos">
-                    <div class="dropdown">
-                        <button class="btn border border-secondary dropdown-toggle" type="button" id="dropdownUsuarios"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-solid fa-user-plus" style="color: #039e00;"></i> Selecionar usuários
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownUsuarios">
-                            <li v-for="usuario in usuarios" :key="usuario.id">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" :id="'usuario_' + usuario.id"
-                                        v-model="this.newTaskRequest.usuariosAtribuidos" :value="usuario.id">
-                                    <label class="form-check-label" :for="'usuario_' + usuario.id">
-                                        <!-- <i  class="fa-solid fa-shield-halved"></i>  -->
-                                        <i v-if="usuario.role == 'admin'" class="fa-solid fa-shield-halved"></i>
-                                        <i v-else class="fa-solid fa-user"></i>
-                                        {{ usuario.name }}
-                                    </label>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
+            <div class="form-group mt-2 mb-2" >
+                <input-container-component titulo="Atribuir usuários"
+                    texto-ajuda="Selecione os usuários a serem atribuídos">
+                    <select-users-component :users="usuarios"
+                        :assignedUsersIds="this.$store.state.assignedUsersIds"></select-users-component>
                 </input-container-component>
             </div>
 
@@ -343,11 +325,11 @@ export default {
             let formData = new FormData();
             formData.append('title', this.newTaskRequest.titulo);
             formData.append('description', this.newTaskRequest.descricao);
-            formData.append('usuariosAtribuidos', JSON.stringify(this.usuariosAtribuidos)); // Converte para string JSON
+            formData.append('usuariosAtribuidos', JSON.stringify(this.$store.state.assignedUsersIds)); // Converte para string JSON
 
             // Converte a data de entrega para o formato YYYY-MM-DD HH:MM:SS
             formData.append('due_date', this.formatDateToString(this.newTaskRequest.dataEntrega));
-
+            
             // Recupera a resposta/erros de forma assíncrona
             axios.post(this.urlBase, formData)
                 .then(response => {
@@ -388,12 +370,6 @@ export default {
             }else{
                 formData.append('due_date', this.formatDateToString(this.$store.state.dataEntrega));
             }
-
-            console.log(this.$store.state.item.due_date)
-            console.log(this.formatDateToString(this.$store.state.item.due_date))
-            
-            console.log(this.$store.state.dataEntrega)
-            console.log(this.$store.state.dataEntrega === 'vazio')
 
             axios.post(url, formData)
                 .then(response => {
