@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <table class="table table-hover" v-if="dados.length > 0">
+    <div class="overflow-x-auto relative ">
+        <table class="table w-fulll table-hover table-striped " v-if="dados.length > 0">
             <thead>
                 <tr>
                     <th scope="col" v-for="coluna, key in titulos" :key="key">{{ coluna.titulo }}</th>
