@@ -20,7 +20,7 @@ const store = createStore({
         // visualizar
         assignedUsersNames: "",
         
-        // atualizar
+        // criar/atualizar
         updateStatusId: 99,
         assignedUsersIds: [],
         dataEntrega: 'vazio',

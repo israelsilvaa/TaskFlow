@@ -5,7 +5,6 @@
 @endsection
 
 
-
 {{-- @extends('layouts.app')
 
 @section('content')

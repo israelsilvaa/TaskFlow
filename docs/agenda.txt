@@ -1,0 +1,37 @@
+                        ### - Agenda - ###
+Fluxo do sistema: 
+    - rodar fluxo básico(admin/user): criar, editar, pesquisar e deletar
+
+Funcionalidades|explicação do código fonte:
+    - autenticação: Login e Register(csrf)
+    - Criação
+    - Listagem de tarefas.
+    - Edição
+    - Exclusão
+    - Atribuição de tarefas a usuários específicos.
+    - Marcação de tarefas como concluídas.
+
+    Extras:
+    - Implementar filtros de visualização (por exemplo, tarefas concluídas, pendentes, por usuário).
+    - Utilizar Vue.js para criar uma interface dinâmica para a edição e atualização de tarefas sem necessidade de recarregar a página.
+    - Bootstrap.js - auto refresh jwt
+
+Desafios|problemas enfrentados:
+    - VueJS
+
+Tecnologias:
+    - Laravel 10 + autenticação nativa + jwt
+    - VueJS
+    - Bootstrap5
+    - MySql
+
+    - MongoDB(Não utilizado): usar para salvar logs??
+
+Estrutura:
+    - Monolitico ou desacoplado
+
+Obsevações:
+    - bug: produção x local
+    - https://criteriontecnologia.store/public/ 
+                    X
+    - http://localhost:8000/api/v1/task

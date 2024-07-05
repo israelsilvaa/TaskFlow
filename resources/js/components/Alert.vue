@@ -2,8 +2,10 @@
     <div :class="estilo" role="alert">
 
         {{ titulo }}
+        <!-- variavel campo não pe necessária(nome coluna) -->
+         <!-- Melhoria não implementada: alert no input especifico do erro -->
         <ul class="mb-0" v-for="(mensagem, campo) in detalhes.dados" :key="campo" v-if="detalhes.dados">
-            <!-- <strong>{{ campo }}:</strong> -->
+            <strong>{{ campo }}:</strong>
                 <li >{{ mensagem }}</li>
         </ul>
     </div>

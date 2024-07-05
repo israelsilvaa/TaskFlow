@@ -24,6 +24,11 @@
 <script>
 export default {
     props: ['users', 'assignedUsersIds'],
+    // data(){
+    //     return{
+    //         assignedUsersIds:[]
+    //     }
+    // },
     methods: {
         isUserOldAssigned(id) {
             return this.assignedUsersIds.includes(id);

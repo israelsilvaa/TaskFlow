@@ -78,6 +78,8 @@ export default {
             fetch(url, configuracao)
                 .then(response => {
                     // Verifique se a resposta é realmente JSON
+
+                    // desconsiderar: a api sempre vai retornar um json. verificação desnecessária
                     const contentType = response.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
                         throw new TypeError("A resposta da API não é JSON");

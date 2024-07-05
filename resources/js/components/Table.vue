@@ -59,8 +59,9 @@ export default {
         setStore(obj) {
             this.$store.state.item = { ...obj };
 
-            this.$store.state.deletedTask = ''; // resetando botão de deletar no modal
-            this.$store.state.user = obj.user.name.toString();
+            this.$store.state.deletedTask = ''; // remove botão do modal apos deletar dado
+            // console.log(this.$store.state.item)
+            this.$store.state.user = obj.user.name.toString(); // 
             this.$store.state.status = obj.status;
             this.$store.state.updateStatusId = 99;
             this.$store.state.dataEntrega = 'vazio';
@@ -70,6 +71,7 @@ export default {
     },
     props: ['dados','titulos', 'visualizar', 'atualizar', 'remover'],
     computed: {
+        // filtra apenas colunas q deve ser impressas(remover created_at e updated_at)
         dadosFiltrados() {
             let campos = Object.keys(this.titulos)
             let dadosFiltrados = []
@@ -79,7 +81,6 @@ export default {
                 let itemFiltrado = {}
                 campos.forEach(campo => {
                     itemFiltrado[campo] = item[campo]
-
                 })
                 dadosFiltrados.push(itemFiltrado)
             })

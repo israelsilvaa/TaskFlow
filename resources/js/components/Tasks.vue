@@ -53,7 +53,8 @@
                         <table-component :dados="tasks.data"
                             :visualizar="{ userLogged: userLogged, dataBsTarget: '#modalTaskVisualizar' }"
                             :atualizar="{ userLogged: userLogged, dataBsTarget: '#modalTaskAtualizar' }"
-                            :remover="{ userLogged: userLogged, dataBsTarget: '#modalTaskRemover' }" :titulos="{
+                            :remover="{ userLogged: userLogged, dataBsTarget: '#modalTaskRemover' }" 
+                            :titulos="{
                                 id: { titulo: 'ID', tipo: 'texto' },
                                 title: { titulo: 'Título', tipo: 'texto' },
                                 description: { titulo: 'Descrição', tipo: 'texto' },
@@ -108,6 +109,7 @@
             <div class="form-group mt-2 mb-2" >
                 <input-container-component titulo="Atribuir usuários"
                     texto-ajuda="Selecione os usuários a serem atribuídos">
+                     <!-- Refatoração: variável "assignedUsersIds" desnecessária -->
                     <select-users-component :users="usuarios"
                         :assignedUsersIds="this.$store.state.assignedUsersIds"></select-users-component>
                 </input-container-component>
@@ -238,21 +240,26 @@
             <status-button-input-component :statusStore="$store.state.status"
                 :statusList="statusList"></status-button-input-component>
 
+            <!-- verifica se o usuário tem acesso || evita erro de leitura da store -->
+             <!-- item.user.name  : erro -->
+             <!-- item.title      : ok -->
             <div class="form-group mt-2 mb-2" v-if="isUserLoggedIn">
                 <input-container-component titulo="Atribuir usuários"
                     texto-ajuda="Selecione os usuários a serem atribuídos">
+                    <!-- Refatoração: variável "assignedUsersIds" desnecessária -->
                     <select-users-component :users="usuarios"
                         :assignedUsersIds="$store.state.assignedUsersIds"></select-users-component>
                 </input-container-component>
             </div>
 
+            <!-- verifica se o usuário tem acesso || evita erro de leitura da store -->
             <div class="form-group mb-2" v-if="isUserLoggedIn">
                 <input-container-component titulo="Data de Entrega" id="dataEntrega" id-help="dataEntregaHelp"
                     texto-ajuda="quando dever ser entregue">
                     <input type="datetime-local" class="form-control" id="dataEntrega" v-model="formattedDueDate"
                         aria-describedby="dataEntregaHelp">
-                </input-container-component>
-            </div>
+                    </input-container-component>
+                </div>
         </template>
 
         <template v-slot:rodape>
@@ -279,7 +286,7 @@ export default {
         },
         formattedDueDate: {
             get() {
-                // Converte o formato DD-MM-YYYY HH:MM para YYYY-MM-DDTHH:MM
+                // Converte o formato YYYY-MM-DD HH:MM para YYYY-MM-DDTHH:MM
                 const [date, time] = this.$store.state.item.due_date.split(' ');
                 const [day, month, year] = date.split('-');
                 return `${year}-${month}-${day}T${time}`;
@@ -289,7 +296,7 @@ export default {
                 this.$store.state.dataEntrega = this.formatDateToString(value);
             }
         },
-        isUserLoggedIn() {
+        isUserLoggedIn() { // verifica se o usuário tem acesso || evita erro de leitura da store
             return this.$store.state.item && this.$store.state.item.user && this.userLogged.id == this.$store.state.item.user.id;
         }
     },
@@ -298,15 +305,15 @@ export default {
             // busca
             urlBase: 'http://localhost:8000/api/v1/task',
             urlPaginacao: '',
-            urlFiltro: '',
-            busca: { title: '', description: '', status_id: '' },
+            urlFiltro: '', // url montada com inputs de pesquisa
+            busca: { title: '', description: '', status_id: '' }, // inputs
 
             // visualizar 
             tasks: { data: [] }, // definido como vazio, aguardar a requisição de tasks terminar: loadTaskList()
             statusList: {},
             usuarios: { data: [] },
 
-            // atualizar/criar
+            // criar: *utiliza local*
             newTaskRequest: {
                 status: "",
                 mensagem: "",
@@ -325,35 +332,36 @@ export default {
             let formData = new FormData();
             formData.append('title', this.newTaskRequest.titulo);
             formData.append('description', this.newTaskRequest.descricao);
-            formData.append('usuariosAtribuidos', JSON.stringify(this.$store.state.assignedUsersIds)); // Converte para string JSON
+            formData.append('usuariosAtribuidos', JSON.stringify(this.$store.state.assignedUsersIds)); // Converte [] para string JSON
 
-            // Converte a data de entrega para o formato YYYY-MM-DD HH:MM:SS
+            // Converte a data de entrega de YYYY-MM-DDTHH:MM para o formato YYYY-MM-DD HH:MM:SS
             formData.append('due_date', this.formatDateToString(this.newTaskRequest.dataEntrega));
             
             // Recupera a resposta/erros de forma assíncrona
             axios.post(this.urlBase, formData)
                 .then(response => {
                     this.newTaskRequest.status = 'success'
-                    this.newTaskRequest.mensagem = response.data.success.detail
-                    this.newTaskRequest.dados = ''
+                    this.newTaskRequest.mensagem = response.data.success.detail // erro.title // sem uso
+                    this.newTaskRequest.dados = ''  
                     setTimeout(() => {
                         this.newTaskRequest = {}
-                    }, 2500);
+                    }, 2500); // criar variável de time / extra: poppup + tempo de duração
                 })
                 .catch(errors => {
                     this.newTaskRequest.status = 'erro'
-                    this.newTaskRequest.mensagem = errors.response.data.error.detail
-                    this.newTaskRequest.dados = errors.response.data.error.detail
+                    this.newTaskRequest.mensagem = errors.response.data.error.detail // erro.title // sem uso
+                    this.newTaskRequest.dados = errors.response.data.error.detail 
                     setTimeout(() => {
                         this.newTaskRequest.status = ''
                     }, 2500);
                 });
-            this.loadTaskList()
+            this.loadTaskList() // mover para caso de sucesso
         },
         updateTask() {
             let url = this.urlBase + '/' + this.$store.state.item.id
             let formData = new FormData();
 
+            // formData.append('_method', 'put')
             formData.append('_method', 'patch')
             formData.append('title', this.$store.state.item.title)
             formData.append('description', this.$store.state.item.description)
@@ -363,8 +371,10 @@ export default {
             } else {
                 formData.append('status_id', this.$store.state.updateStatusId)
             }
+
             formData.append('usuariosAtribuidos', this.$store.state.assignedUsersIds); // Converte para string JSON
 
+             // Converte a data de entrega de YYYY-MM-DDTHH:MM para o formato YYYY-MM-DD HH:MM:SS
             if(this.$store.state.dataEntrega === 'vazio'){
                 formData.append('due_date', this.formatDateToString(this.$store.state.item.due_date));
             }else{
@@ -374,7 +384,7 @@ export default {
             axios.post(url, formData)
                 .then(response => {
                     this.newTaskRequest.status = 'success'
-                    this.newTaskRequest.mensagem = response.data.success.detail
+                    this.newTaskRequest.mensagem = response.data.success.detail // erro.title // sem uso
                     this.newTaskRequest.dados = ''
                     this.loadTaskList()
                     setTimeout(() => {
@@ -383,7 +393,7 @@ export default {
                 })
                 .catch(errors => {
                     this.newTaskRequest.status = 'erro'
-                    this.newTaskRequest.mensagem = errors.response.data.error.detail
+                    this.newTaskRequest.mensagem = errors.response.data.error.detail // erro.title // sem uso
                     this.newTaskRequest.dados = errors.response.data.error.detail
                     setTimeout(() => {
                         this.newTaskRequest.status = ''
@@ -404,7 +414,7 @@ export default {
             axios.post(url, formData)
                 .then(response => {
                     this.newTaskRequest.status = 'success'
-                    this.newTaskRequest.mensagem = response.data.success.detail
+                    this.newTaskRequest.mensagem = response.data.success.detail // erro.title // sem uso
                     this.newTaskRequest.dados = ''
 
                     setTimeout(() => {
@@ -414,7 +424,7 @@ export default {
                 })
                 .catch(errors => {
                     this.newTaskRequest.status = 'erro'
-                    this.newTaskRequest.mensagem = errors.response.data.error.detail
+                    this.newTaskRequest.mensagem = errors.response.data.error.detail // erro.title // sem uso
                     this.newTaskRequest.dados = errors.response.data.error.detail
                     setTimeout(() => {
                         this.newTaskRequest.status = ''
@@ -439,12 +449,13 @@ export default {
                     if (filtro != '') {
                         filtro += ";"
                     }
-
+                    //       Title       like        café
+                    // where(Title,      like,      %café%)
                     filtro += chave + ":like:" + this.busca[chave]
                 }
             }
             if (filtro != '') {
-                this.urlPaginacao = 'page=1'
+                this.urlPaginacao = 'page=1'     // sempre inicia na pagina 1 
                 this.urlFiltro = '&filtro=' + filtro
             } else {
                 this.urlFiltro = ''
@@ -497,7 +508,6 @@ export default {
                 .catch(errors => {
                 });
         },
-
     },
     mounted() {
         this.loadTaskList()
