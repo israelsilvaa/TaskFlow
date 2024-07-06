@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Services\ApiServices;
 use App\Models\TaskAssignments;
 
 class TaskController extends Controller
@@ -69,13 +70,13 @@ class TaskController extends Controller
             $filtros = explode(';', $request->filtro);
             foreach ($filtros as $condicoes) {
                 $c = explode(':', $condicoes);
-                $taskQuery = $taskQuery->where($c[0], $c[1],  '%' . $c[2] . '%' );
+                $taskQuery = $taskQuery->where($c[0], $c[1],  '%' . $c[2] . '%');
             }
         }
 
         $tasks = $taskQuery->paginate(10);
 
-        return response()->json($tasks, 201);
+        return ApiServices::statusCodeWithoutHeader($tasks, 201);
     }
 
     /**
@@ -107,31 +108,12 @@ class TaskController extends Controller
                         $newTask->assignedUsers()->sync($usuariosAtribuidos);
                     }
                 }
-
-                return response()->json([
-                    "success" => [
-                        "status" => "201",
-                        "title" => "Created",
-                        "detail" => $newTask
-                    ]
-                ], 201);
+                return ApiServices::statusCode201($newTask);
             } else {
-                return response()->json([
-                    "error" => [
-                        "status" => "500",
-                        "title" => "Internal Server Error",
-                        "detail" => "Erro ao salvar"
-                    ]
-                ], 500);
+                return ApiServices::statusCode500("Erro ao salvar");
             }
         } catch (Exception $e) {
-            return response()->json([
-                "error" => [
-                    "status" => "500",
-                    "title" => "Internal Server Error",
-                    "detail" => $e->getMessage(),
-                ]
-            ], 500);
+            return ApiServices::statusCode500($e->getMessage());
         }
     }
 
@@ -164,26 +146,13 @@ class TaskController extends Controller
 
             // Verifica se a tarefa existe
             if ($task === null) {
-                return response()->json([
-                    "error" => [
-                        "status" => "404",
-                        "title" => "Not Found",
-                        "detail" => "Registro não encontrado",
-                    ]
-                ], 404);
+                return ApiServices::statusCode404("Registro não encontrado");
             }
 
             // Verifica se o usuário tem permissão para atualizar a tarefa
             $isRelatedUser = $task->assignedUsers->contains('id', $user->id);
             if ($task->user_id !== $user->id && !$isRelatedUser) {
-
-                return response()->json([
-                    "error" => [
-                        "status" => "403",
-                        "title" => "Forbidden",
-                        "detail" => "Usuário não tem permissão para acessar o registro",
-                    ]
-                ], 403);
+                return ApiServices::statusCode403("Usuário não tem permissão para acessar o registro");
             }
 
             if (gettype($request->usuariosAtribuidos) != "NULL") {
@@ -216,29 +185,13 @@ class TaskController extends Controller
                 TaskAssignments::where('task_id', $task->id)->delete();
             }
 
-
-            // Tenta atualizar a tarefa
             if ($task->update($request->all())) {
-                return response()->json([
-                    "success" => [
-                        "status" => "200",
-                        "title" => "OK",
-                        "detail" => "Atualizado com sucesso"
-                    ]
-                ], 200);
+                return ApiServices::statusCode200("Atualizado com sucesso");
             }
 
-            return response()->json([
-                "error" => ["status" => "500", "title" => "Internal Server Error", "detail" => "Erro ao atualizar"]
-            ], 500);
+            return ApiServices::statusCode500("Erro ao atualizar");
         } catch (Exception $e) {
-            return response()->json([
-                "error" => [
-                    "status" => "500",
-                    "title" => "Internal Server Error",
-                    "detail" => $e->getMessage(),
-                ]
-            ], 500);
+            return ApiServices::statusCode500($e->getMessage());
         }
     }
 
@@ -254,48 +207,22 @@ class TaskController extends Controller
 
             // Verifica se a tarefa existe
             if ($task === null) {
-                return response()->json([
-                    "error" => [
-                        "status" => "404",
-                        "title" => "Not Found",
-                        "detail" => "Registro não encontrado",
-                    ]
-                ], 404);
+                return ApiServices::statusCode404("Registro não encontrado");
             }
 
             // Verifica se o usuário tem permissão para deletar a tarefa
             if ($task->user_id !== $user->id) {
-                return response()->json([
-                    "error" => [
-                        "status" => "403",
-                        "title" => "Forbidden",
-                        "detail" => "Usuário não tem permissão para acessar o registro",
-                    ]
-                ], 403);
+                return ApiServices::statusCode403("Usuário não tem permissão para acessar o registro");
             }
-
+            
             // Tenta deletar a tarefa
             if ($task->delete()) {
-                return response()->json([
-                    "success" => [
-                        "status" => "200",
-                        "title" => "OK",
-                        "detail" => "Deletado com sucesso"
-                    ]
-                ], 200);
+                return ApiServices::statusCode200("Deletado com sucesso");
             }
-
-            return response()->json([
-                "error" => ["status" => "500", "title" => "Internal Server Error", "detail" => "Erro ao deletar"]
-            ], 500);
+            
+            return ApiServices::statusCode500("Erro ao deletar");
         } catch (Exception $e) {
-            return response()->json([
-                "error" => [
-                    "status" => "500",
-                    "title" => "Internal Server Error",
-                    "detail" => $e->getMessage(),
-                ]
-            ], 500);
+            return ApiServices::statusCode500($e->getMessage());
         }
     }
 }

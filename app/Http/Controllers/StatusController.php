@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\Statuses;
+use App\Http\Services\ApiServices;
 use App\Http\Requests\StoreStatusRequest;
 use App\Http\Requests\UpdateStatusRequest;
 
@@ -18,20 +19,12 @@ class StatusController extends Controller
         try {
             $status = Statuses::all();
 
-            return response()->json([
-                "success" => [
-                    "status" => "200", "title" => "OK", "detail" => $status
-                ]
-            ], 201);
+            return ApiServices::statusCode200($status);
+
         } catch (Exception $e) {
 
-            return response()->json([
-                "error" => [
-                    "status" => "500",
-                    "title" => "Internal Server Error",
-                    "detail" => $e->getMessage(),
-                ]
-            ], 500);
+            return ApiServices::statusCode500($e->getMessage());
+
         }
     }
 

@@ -384,6 +384,7 @@ export default {
             axios.post(url, formData)
                 .then(response => {
                     this.newTaskRequest.status = 'success'
+                    console.log("ERRO: ", response);
                     this.newTaskRequest.mensagem = response.data.success.detail // erro.title // sem uso
                     this.newTaskRequest.dados = ''
                     this.loadTaskList()

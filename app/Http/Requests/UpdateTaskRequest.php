@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Services\ApiServices;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -58,12 +59,7 @@ class UpdateTaskRequest extends FormRequest
      */
     protected function failedValidation(Validator $validator)
     {
-        throw new HttpResponseException(response()->json([
-            "error" => [
-                "status" => "422",
-                "title" => "Unprocessable Entity",
-                "detail" => $validator->errors(),
-            ]
-        ], 422));
+        throw new HttpResponseException(ApiServices::statusCode422($validator->errors()));
+       
     }
 }

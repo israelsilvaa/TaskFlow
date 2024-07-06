@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
-use App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Services\ApiServices;
+use App\Models\User;
+use Exception;
 
 
 class UserController extends Controller
@@ -19,20 +20,12 @@ class UserController extends Controller
             $user = JWTAuth::parseToken()->authenticate();
             $users = User::where('id', '!=', $user->id)->get();
 
-            return response()->json([
-                "success" => [
-                    "status" => "201", "title" => "Created", "detail" => $users
-                ]
-            ], 201);
+            return ApiServices::statusCode200($users);
+
         } catch (Exception $e) {
 
-            return response()->json([
-                "error" => [
-                    "status" => "500",
-                    "title" => "Internal Server Error",
-                    "detail" => $e->getMessage(),
-                ]
-            ], 500);
+            ApiServices::statusCode500($e->getMessage());
+
         }
     }
 }

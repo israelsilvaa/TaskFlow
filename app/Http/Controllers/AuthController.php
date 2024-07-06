@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\LoginFormRequest;
+use App\Http\Services\ApiServices;
 
 class AuthController extends Controller
 {
@@ -33,11 +34,9 @@ class AuthController extends Controller
         $validator = Validator($request->all(), $regras, $feedback);
 
         if ($validator->fails()) {
-            return response()->json([
-                "error" => [
-                    "status" => "422", "title" => "Unprocessable Entity", "detail" => $validator->errors()
-                ]
-            ]);
+
+            return ApiServices::statusCode422($validator->errors());
+            
         }
 
         $user = User::create([
@@ -46,62 +45,36 @@ class AuthController extends Controller
             'password' => bcrypt($request->password),
         ]);
 
-        return response()->json([
-            "success" => [
-                "status" => "201", "title" => "Created", "detail" => $user
-            ]
-        ], 201);
+        return ApiServices::statusCode201($user);
     }
 
     public function login(LoginFormRequest $request)
     {
         $request->validated();
         $credenciais = $request->all();
-
         $token = Auth('api')->attempt($credenciais);
 
         if ($token) {
-            return response()->json([
-                "success" => [
-                    "status" => "200", "title" => "OK", "detail" => ['Token' => $token]
-                ]
-            ], 200);
+            return ApiServices::statusCode200(['Token' => $token]);
         } else {
-            return response()->json([
-                "error" => [
-                    "status" => "403", "title" => "Forbidden", "detail" => "Erro de usuário ou senha"
-                ]
-            ], 403);
+            return ApiServices::statusCode403("Erro de usuário ou senha");
         }
     }
-
+    
     public function logout()
     {
         auth('api')->logout();
-        return response()->json([
-            "success" => [
-                "status" => "200", "title" => "OK", "detail" => "Logout foi realizado com sucesso"
-            ]
-        ], 200);
+        return ApiServices::statusCode200("Logout foi realizado com sucesso");
     }
-
+    
     public function refresh()
     {
         $token = auth('api')->refresh();
-
-        return response()->json([
-            "success" => [
-                "status" => "200", "title" => "OK", "detail" => ['Token' => $token]
-            ]
-        ], 200);
+        return ApiServices::statusCode200(['Token' => $token]);
     }
-
+    
     public function me()
     {
-        return response()->json([
-            "success" => [
-                "status" => "200", "title" => "OK", "detail" => ['User' => Auth()->user()]
-            ]
-        ], 200);
+        return ApiServices::statusCode200(['User' => Auth()->user()]);
     }
 }
